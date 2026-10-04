@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ScamTypes">
+        <item>Bank</item>
+        <item>Health/Life Insurance</item>
+        <item>Political</item>
+        <item>Requesting Money</item>
+        <item>Other</item>
+    </string-array>
+</resources>

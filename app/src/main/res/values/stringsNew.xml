@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name = "report_number">Report</string>
+    <string name = "go_home">Home</string>
+    <string name = "scam_type">Scam Type</string>
+    <string name = "phone_number">Phone Number</string>
+    <string name = "other_information">Other Information</string>
+    <string name = "enter_phone">Enter phone number</string>
+    <string name = "enter_info">Enter other information</string>
+    <string name = "submit">Submit</string>
+</resources>
