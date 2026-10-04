@@ -81,9 +81,9 @@ public class MainActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         findViewById(R.id.button_test).setOnClickListener(view -> addMarlaSinger());
-        addMarlaSinger();
-        addTylerDurden();
-        getAllNumbers();
+        //addMarlaSinger();
+        //addTylerDurden();
+        //getAllNumbers();
     }
 
     private void switchActivities(){
