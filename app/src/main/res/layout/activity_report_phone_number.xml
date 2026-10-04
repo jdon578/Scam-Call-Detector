@@ -7,15 +7,11 @@
     android:layout_height="match_parent"
     tools:context=".ReportPhoneNumber">
 
+    <include layout="@layout/nav_bars" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar2"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/editTextPhone"
@@ -97,13 +93,14 @@
             app:layout_constraintTop_toBottomOf="@+id/editTextPhone" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/submit_phone"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="157dp"
             android:layout_height="66dp"
             android:layout_marginStart="128dp"
             android:layout_marginTop="44dp"
             android:layout_marginEnd="127dp"
+            android:onClick="@string/go_home"
             android:text="@string/submit"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

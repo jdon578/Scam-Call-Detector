@@ -1,6 +1,8 @@
 package com.example.scam_call_detector;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,7 +10,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.snackbar.Snackbar;
+
 public class ReportPhoneNumber extends AppCompatActivity {
+
+    //Button submit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,5 +26,8 @@ public class ReportPhoneNumber extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        //submit.findViewById(R.id.submit_phone);
+        //submit.setOnClickListener(view -> switchActivities());
+        findViewById(R.id.submit_phone).setOnClickListener(view -> finish());
     }
 }

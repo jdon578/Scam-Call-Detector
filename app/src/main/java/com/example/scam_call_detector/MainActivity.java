@@ -1,9 +1,11 @@
 package com.example.scam_call_detector;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,10 +21,12 @@ import com.example.scam_call_detector.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
+    BottomNavigationView bottomNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,20 @@ public class MainActivity extends AppCompatActivity {
             appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         }
+        /*bottomNav = findViewById(R.id.bottomNavigationView);
+        bottomNav.setOnClickListener(view -> switchActivities());*/
+        /*binding.fab.setOnClickListener(
+                view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAnchorView(R.id.fab)
+                        .setAction("Action", null).show());*/
+
+        binding.fab.setOnClickListener(
+                view -> switchActivities());
+    }
+
+    private void switchActivities(){
+        Intent switchActivityIntent = new Intent(this, ReportPhoneNumber.class);
+        startActivity(switchActivityIntent);
     }
 
     @Override
@@ -66,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            /*Intent myIntent = new Intent(this, ReportPhoneNumber.class);
+            startActivity(myIntent);*/
             return true;
         }
 
