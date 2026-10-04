@@ -5,9 +5,14 @@ import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -18,15 +23,27 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.scam_call_detector.databinding.ActivityMainBinding;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     BottomNavigationView bottomNav;
+
+    private static final String TAG = "MainActivity";
+    //Button submit;'
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +78,12 @@ public class MainActivity extends AppCompatActivity {
 
         binding.fab.setOnClickListener(
                 view -> switchActivities());
+
+        db = FirebaseFirestore.getInstance();
+        findViewById(R.id.button_test).setOnClickListener(view -> addMarlaSinger());
+        addMarlaSinger();
+        addTylerDurden();
+        getAllNumbers();
     }
 
     private void switchActivities(){
@@ -102,5 +125,68 @@ public class MainActivity extends AppCompatActivity {
             handled = NavigationUI.navigateUp(navController, appBarConfiguration);
         }
         return handled || super.onSupportNavigateUp();
+    }
+
+    public void addMarlaSinger(){
+        Map<String, Object> phone_numbers = new HashMap<>();
+        phone_numbers.put("phoneNumber", "800-555-0143");
+        phone_numbers.put("location", "Business");
+        phone_numbers.put("scamType", "health/life");
+        phone_numbers.put("nameAttached", "Marla Singer");
+        phone_numbers.put("other", "scams people out of their health insurance");
+
+        db.collection("phone_numbers")
+                .document()
+                .set(phone_numbers)
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "write:onComplete");
+                        if(!task.isSuccessful()){
+                            Log.w(TAG, "write:onComplete:failed", task.getException());
+                            Snackbar.make(findViewById(R.id.button_test), "Unsuccessful " + task.getException(), Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+    public void addTylerDurden(){
+        Map<String, Object> phone_numbers = new HashMap<>();
+        phone_numbers.put("phoneNumber", "800-555-0153");
+        phone_numbers.put("location", "Business");
+        phone_numbers.put("scamType", "money");
+        phone_numbers.put("nameAttached", "Tyler Durden");
+        phone_numbers.put("other", "wants to sell soap");
+
+        db.collection("phone_numbers")
+                .document()
+                .set(phone_numbers)
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "write:onComplete");
+                        if(!task.isSuccessful()){
+                            Log.w(TAG, "write:onComplete:failed", task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void getAllNumbers() {
+        // [START get_all_users]
+        db.collection("phone_numbers")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+        // [END get_all_users]
     }
 }

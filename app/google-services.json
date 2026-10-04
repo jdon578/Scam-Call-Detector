@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "726500644153",
+    "project_id": "scam-call-detector-bad53",
+    "storage_bucket": "scam-call-detector-bad53.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726500644153:android:4569113e850735ab69c4e8",
+        "android_client_info": {
+          "package_name": "com.example.scam_call_detector"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOJzqsJEUBOyvL0qQI4h7vY15KGu6yQ6s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
