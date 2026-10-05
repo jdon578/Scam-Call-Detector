@@ -3,8 +3,10 @@ package com.example.scam_call_detector;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -27,11 +29,10 @@ public class ReportPhoneNumber extends AppCompatActivity {
     private static final String TAG = "ReportPhoneNumber";
     //Button submit;'
     private FirebaseFirestore db;
-    String phoneNumber;
-    String location;
-    String scamType;
-    String nameAttached;
-    String other;
+
+    EditText phoneNumberEdit;
+    Spinner scamTypeEdit;
+    EditText otherEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,18 +50,28 @@ public class ReportPhoneNumber extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        // sends information, does NOT send the inputted information tho
-        EditText phoneNumberEdit = findViewById(R.id.phone_number);
-        phoneNumber = phoneNumberEdit.getText().toString();
-        Spinner scamTypEdit = findViewById(R.id.scam_type);
-        scamType = scamTypEdit.getSelectedItem().toString();
-        location = getLocation(phoneNumber);
-        nameAttached = getNameAttached(phoneNumber);
-        EditText otherEdit = findViewById(R.id.other_information);
-        other = otherEdit.getText().toString();
-        String[] info = {phoneNumber, scamType, location, nameAttached, other};
+        findViewById(R.id.submit_phone).setOnClickListener(
+                new View.OnClickListener(){
 
-        findViewById(R.id.submit_phone).setOnClickListener(view -> submitReport(info));
+                    @Override
+                    public void onClick(View v) {
+                        phoneNumberEdit = findViewById(R.id.phone_number);
+                        String phoneNumber = phoneNumberEdit.getText().toString();
+                        scamTypeEdit = findViewById(R.id.scam_type);
+                        String scamType = scamTypeEdit.getSelectedItem().toString();
+                        String location = getLocation(phoneNumber);
+                        String nameAttached = getNameAttached(phoneNumber);
+                        otherEdit = findViewById(R.id.other_information);
+                        String other = otherEdit.getText().toString();
+                        String[] info = {phoneNumber, scamType, location, nameAttached, other};
+
+                        if(phoneNumber.isEmpty() || other.isEmpty()){
+                            Toast.makeText(getApplicationContext(), "Please enter the data", Toast.LENGTH_SHORT).show();
+                        } else {
+                            submitReport(info);
+                        }
+                    }
+                });
         //findViewById(R.id.submit_phone).setOnClickListener(view -> finish());
     }
 
