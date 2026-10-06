@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show());*/
 
         binding.fab.setOnClickListener(
-                view -> switchActivities());
+                view -> contactAdmin());
 
         bottomNav = findViewById(R.id.bottomNavigationView);
         bottomNav.setSelectedItemId(R.id.go_home);
@@ -111,6 +111,11 @@ public class MainActivity extends AppCompatActivity {
     private void switchActivities(){
         Intent switchActivityIntent = new Intent(this, ReportPhoneNumber.class);
         startActivity(switchActivityIntent);
+    }
+
+    private void contactAdmin(){
+        Intent contactAdminIntent = new Intent(this, ContactAdmin.class);
+        startActivity(contactAdminIntent);
     }
 
     @Override
