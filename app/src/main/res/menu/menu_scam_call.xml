@@ -8,7 +8,7 @@
         android:title="@string/go_home" />
     <item
         android:id="@+id/report_phone_number"
-        android:icon="@android:drawable/stat_sys_warning"
+        android:icon="@drawable/ic_report_foreground"
         android:title="@string/report_number" />
     <item
         android:id="@+id/action_settings"

@@ -46,7 +46,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_report_phone_number);
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
+        bottomNav = findViewById(R.id.bottomNavigationView);
 
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
