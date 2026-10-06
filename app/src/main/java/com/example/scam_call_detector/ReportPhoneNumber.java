@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -24,11 +25,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import android.content.Intent;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 public class ReportPhoneNumber extends AppCompatActivity {
 
     private static final String TAG = "ReportPhoneNumber";
     //Button submit;'
     private FirebaseFirestore db;
+    BottomNavigationView bottomNav;
 
     EditText phoneNumberEdit;
     Spinner scamTypeEdit;
@@ -40,6 +45,26 @@ public class ReportPhoneNumber extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_report_phone_number);
+
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.go_home) {
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+
+            } else if (id == R.id.report_phone_number) {
+                return true;
+
+            } else if (id == R.id.action_settings) {
+                return true;
+            }
+
+            return false;
+        });
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -48,6 +73,8 @@ public class ReportPhoneNumber extends AppCompatActivity {
         //submit.findViewById(R.id.submit_phone);
         //submit.setOnClickListener(view -> switchActivities());
 
+        bottomNav = findViewById(R.id.bottomNavigationView);
+        bottomNav.setSelectedItemId(R.id.report_phone_number);
         db = FirebaseFirestore.getInstance();
 
         findViewById(R.id.submit_phone).setOnClickListener(
@@ -93,6 +120,13 @@ public class ReportPhoneNumber extends AppCompatActivity {
                         if(!task.isSuccessful()){
                             Log.w(TAG, "write:onComplete:failed", task.getException());
                             Snackbar.make(findViewById(R.id.submit_phone), "Unsuccessful " + task.getException(), Snackbar.LENGTH_SHORT).show();
+                        }
+                        else {
+                            new AlertDialog.Builder(ReportPhoneNumber.this)
+                                    .setTitle("Report Confirmation")
+                                    .setMessage("\nYou have successfully submitted the report.")
+                                    .setPositiveButton("Confirm",null)
+                                    .show();
                         }
                     }
                 });
