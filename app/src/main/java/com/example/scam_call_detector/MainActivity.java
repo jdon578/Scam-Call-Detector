@@ -1,6 +1,8 @@
 package com.example.scam_call_detector;
 
+import android.app.role.RoleManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     //Button submit;'
     private FirebaseFirestore db;
+    private static final int REQUEST_CALL_SCREENING_ROLE = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         getAllNumbers();
+        requestCallScreeningRole();
 //        findViewById(R.id.button_test).setOnClickListener(view -> addMarlaSinger());
         //addMarlaSinger();
         //addTylerDurden();
@@ -152,6 +157,21 @@ public class MainActivity extends AppCompatActivity {
             handled = NavigationUI.navigateUp(navController, appBarConfiguration);
         }
         return handled || super.onSupportNavigateUp();
+    }
+
+    private void requestCallScreeningRole() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+            RoleManager roleManager = (RoleManager) getSystemService(ROLE_SERVICE);
+
+            if (roleManager.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING) && !roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)) {
+
+                Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING);
+
+                startActivityForResult(intent, REQUEST_CALL_SCREENING_ROLE);
+            }
+        }
     }
 
 //    public void addMarlaSinger(){
