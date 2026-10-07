@@ -16,7 +16,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.scam_call_detector.databinding.ActivityReportPhoneNumberBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
@@ -79,7 +78,6 @@ public class ReportPhoneNumber extends AppCompatActivity {
         //submit.findViewById(R.id.submit_phone);
         //submit.setOnClickListener(view -> switchActivities());
 
-        bottomNav = findViewById(R.id.bottomNavigationView);
         bottomNav.setSelectedItemId(R.id.report_phone_number);
         db = FirebaseFirestore.getInstance();
 
