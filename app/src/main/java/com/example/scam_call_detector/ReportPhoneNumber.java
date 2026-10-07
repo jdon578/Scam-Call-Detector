@@ -16,6 +16,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.scam_call_detector.databinding.ActivityReportPhoneNumberBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
@@ -27,6 +28,7 @@ import java.util.Random;
 
 import android.content.Intent;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.scam_call_detector.databinding.ActivityReportPhoneNumberBinding;
 
 public class ReportPhoneNumber extends AppCompatActivity {
 
@@ -44,7 +46,11 @@ public class ReportPhoneNumber extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_report_phone_number);
+
+        ActivityReportPhoneNumberBinding  binding = ActivityReportPhoneNumberBinding .inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        binding.fab.setOnClickListener(
+                view -> contactAdmin());
 
         bottomNav = findViewById(R.id.bottomNavigationView);
 
@@ -167,4 +173,10 @@ public class ReportPhoneNumber extends AppCompatActivity {
         }
         return locationVal;
     }
+
+    private void contactAdmin(){
+        Intent contactAdminIntent = new Intent(this, ContactAdmin.class);
+        startActivity(contactAdminIntent);
+    }
+
 }

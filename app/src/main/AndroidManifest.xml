@@ -27,7 +27,7 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ReportConfirmation"
+            android:name=".ReportPhoneNumber"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
