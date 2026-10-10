@@ -1,7 +1,9 @@
 package com.example.scam_call_detector;
 
+import android.Manifest;
 import android.app.role.RoleManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -16,6 +18,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -35,13 +39,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int PERMISSION_REQUEST_CODE = 123;
 
     private AppBarConfiguration appBarConfiguration;
     BottomNavigationView bottomNav;
@@ -107,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         getAllNumbers();
         requestCallScreeningRole();
+        requestPermissions();
 //        findViewById(R.id.button_test).setOnClickListener(view -> addMarlaSinger());
         //addMarlaSinger();
         //addTylerDurden();
@@ -174,6 +184,56 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void requestPermissions() {
+        // from GeeksforGeeks
+        String[] permissions = {
+                Manifest.permission.READ_CALL_LOG,
+                Manifest.permission.READ_CONTACTS
+        };
+
+        List<String> permissionsToRequest = new ArrayList<>();
+
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(permission);
+            }
+        }
+
+        if (!permissionsToRequest.isEmpty()){
+            ActivityCompat.requestPermissions(
+                    this,
+                    permissionsToRequest.toArray(new String[0]),
+                    PERMISSION_REQUEST_CODE
+            );
+        } else {
+            Toast.makeText(this, "All permissions already granted", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults){
+        // from GeeksforGeeks
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_CODE){
+            List<String> deniedPermissions = new ArrayList<>();
+
+            for (int i = 0; i < permissions.length; i++){
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                    deniedPermissions.add(permissions[i]);
+                }
+            }
+
+            if (deniedPermissions.isEmpty()){
+                Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permissions denied: "  + deniedPermissions, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 //    public void addMarlaSinger(){
 //        Map<String, Object> phone_numbers = new HashMap<>();
 //        phone_numbers.put("phoneNumber", "800-555-0143");
@@ -196,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 //                });
 //    }
-    public void addTylerDurden(){
+    /*public void addTylerDurden(){
         Map<String, Object> phone_numbers = new HashMap<>();
         phone_numbers.put("phoneNumber", "800-555-0153");
         phone_numbers.put("location", "Business");
@@ -216,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-    }
+    }*/
 
     public void getAllNumbers() {
         // [START get_all_users]
