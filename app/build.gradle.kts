@@ -62,4 +62,6 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.appcompat:appcompat:1.8.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
+
+    implementation("androidx.preference:preference-ktx:1.2.1")
 }

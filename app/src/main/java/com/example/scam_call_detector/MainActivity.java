@@ -10,11 +10,8 @@ import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +26,6 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.scam_call_detector.databinding.ActivityMainBinding;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -37,12 +33,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView bottomNav;
 
     private static final String TAG = "MainActivity";
-    //Button submit;'
     private FirebaseFirestore db;
     private static final int REQUEST_CALL_SCREENING_ROLE = 1;
 
@@ -110,6 +103,11 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
 
+            if (item.getItemId() == R.id.action_settings){
+                switchToSettings();
+                return true;
+            }
+
             return false;
         });
 
@@ -131,6 +129,11 @@ public class MainActivity extends AppCompatActivity {
     private void contactAdmin(){
         Intent contactAdminIntent = new Intent(this, ContactAdmin.class);
         startActivity(contactAdminIntent);
+    }
+
+    private void switchToSettings(){
+        Intent settingsIntent = new Intent(this, Settings.class);
+        startActivity(settingsIntent);
     }
 
     @Override
@@ -278,6 +281,8 @@ public class MainActivity extends AppCompatActivity {
                 });
     }*/
 
+    public void getCallLogs(){}
+
     public void getAllNumbers() {
         // [START get_all_users]
         db.collection("phone_numbers")
@@ -286,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            LinearLayout container = findViewById(R.id.scam_numbers_container);
+                            LinearLayout container = findViewById(R.id.call_log_container);
                             for (QueryDocumentSnapshot document : task.getResult()) {
 //                                Log.d(TAG, document.getId() + " => " + document.getData());
                                 String phoneNumber = document.getString("phoneNumber");
