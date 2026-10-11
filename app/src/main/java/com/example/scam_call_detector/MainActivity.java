@@ -2,8 +2,11 @@ package com.example.scam_call_detector;
 
 import android.Manifest;
 import android.app.role.RoleManager;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -30,11 +33,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import android.provider.CallLog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.widget.LinearLayout;
@@ -112,13 +117,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
-        getAllNumbers();
+        //getAllNumbers();
+        getCallLogs();
         requestCallScreeningRole();
         requestPermissions();
-//        findViewById(R.id.button_test).setOnClickListener(view -> addMarlaSinger());
-        //addMarlaSinger();
-        //addTylerDurden();
-        //getAllNumbers();
     }
 
     private void switchActivities(){
@@ -237,51 +239,105 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    public void addMarlaSinger(){
-//        Map<String, Object> phone_numbers = new HashMap<>();
-//        phone_numbers.put("phoneNumber", "800-555-0143");
-//        phone_numbers.put("location", "Business");
-//        phone_numbers.put("scamType", "health/life");
-//        phone_numbers.put("nameAttached", "Marla Singer");
-//        phone_numbers.put("other", "scams people out of their health insurance");
-//
-//        db.collection("phone_numbers")
-//                .document()
-//                .set(phone_numbers)
-//                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Void> task) {
-//                        Log.d(TAG, "write:onComplete");
-//                        if(!task.isSuccessful()){
-//                            Log.w(TAG, "write:onComplete:failed", task.getException());
-//                            Snackbar.make(findViewById(R.id.button_test), "Unsuccessful " + task.getException(), Snackbar.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                });
-//    }
-    /*public void addTylerDurden(){
-        Map<String, Object> phone_numbers = new HashMap<>();
-        phone_numbers.put("phoneNumber", "800-555-0153");
-        phone_numbers.put("location", "Business");
-        phone_numbers.put("scamType", "money");
-        phone_numbers.put("nameAttached", "Tyler Durden");
-        phone_numbers.put("other", "wants to sell soap");
+    public void getCallLogs(){
+        Uri callUri = CallLog.Calls.CONTENT_URI;
 
-        db.collection("phone_numbers")
-                .document()
-                .set(phone_numbers)
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Log.d(TAG, "write:onComplete");
-                        if(!task.isSuccessful()){
-                            Log.w(TAG, "write:onComplete:failed", task.getException());
-                        }
-                    }
-                });
-    }*/
+        String[] callLogs = {
+                CallLog.Calls.NUMBER,
+                CallLog.Calls.TYPE,
+                CallLog.Calls.DATE,
+                CallLog.Calls.DURATION
+        };
 
-    public void getCallLogs(){}
+
+
+        String sort = CallLog.Calls.DATE + "DESC";
+
+        ContentResolver contentResolver = getContentResolver();
+
+        LinearLayout container = findViewById(R.id.call_log_container);
+
+        try (Cursor cursor = contentResolver.query(callUri, callLogs, null, null, null)){
+            if (cursor == null){
+                Log.e(TAG, "Cursor is null");
+                return;
+            }
+            int numberID = cursor.getColumnIndex(CallLog.Calls.NUMBER);
+            int typeID = cursor.getColumnIndex(CallLog.Calls.TYPE);
+            int dateID = cursor.getColumnIndex(CallLog.Calls.DATE);
+            int durationID = cursor.getColumnIndex(CallLog.Calls.DURATION);
+
+            while(cursor.moveToNext()){
+                String phoneNumber = cursor.getString(numberID);
+                String callType = cursor.getString(typeID);
+                String callDate = cursor.getString(dateID);
+                String callDuration = cursor.getString(durationID);
+
+                Date callDayTime = new Date(Long.parseLong(callDate));
+
+                String dir = "UNKNOWN";
+                int dircode = Integer.parseInt(callType);
+                switch (dircode) {
+                    case CallLog.Calls.OUTGOING_TYPE:
+                        dir = "OUTGOING";
+                        break;
+                    case CallLog.Calls.INCOMING_TYPE:
+                        dir = "INCOMING";
+                        break;
+                    case CallLog.Calls.MISSED_TYPE:
+                        dir = "MISSED";
+                        break;
+                    case CallLog.Calls.REJECTED_TYPE:
+                        dir = "REJECTED";
+                        break;
+                }
+
+                com.google.android.material.card.MaterialCardView card =
+                        new com.google.android.material.card.MaterialCardView(
+                                MainActivity.this);
+                LinearLayout layout =
+                        new LinearLayout(MainActivity.this);
+
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                layout.setPadding(20, 20, 20, 20);
+
+                TextView phoneText = new TextView(MainActivity.this);
+                phoneText.setText(phoneNumber);
+                phoneText.setTextSize(18);
+
+                TextView typeText = new TextView(MainActivity.this);
+                typeText.setText("Type: " + callType);
+                typeText.setTextSize(18);
+
+                TextView dateText  = new TextView(MainActivity.this);
+                dateText.setText("Date: " + callDayTime);
+                dateText.setTextSize(18);
+
+                TextView durationText  = new TextView(MainActivity.this);
+                durationText.setText("Duration: " + callDuration);
+                durationText.setTextSize(18);
+
+                layout.addView(phoneText);
+                layout.addView(typeText);
+                layout.addView(dateText);
+                layout.addView(durationText);
+
+                card.addView(layout);
+
+                LinearLayout.LayoutParams cardParams =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT);
+
+                cardParams.setMargins(0, 0, 0, 25);
+                card.setLayoutParams(cardParams);
+                container.addView(card);
+            }
+        } catch (Exception e){
+            Log.e(TAG, "Error getting call logs", e);
+        }
+    }
 
     public void getAllNumbers() {
         // [START get_all_users]

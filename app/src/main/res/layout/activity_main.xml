@@ -38,12 +38,12 @@
             android:id="@+id/main_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="50dp"
             android:layout_marginBottom="20dp"
-            android:layout_gravity="center_horizontal"
             android:scaleX="2"
             android:scaleY="2"
-            android:text="Submitted Scam Numbers" />
+            android:text="Phone Call Log" />
 
         <ScrollView
             android:layout_width="match_parent"
