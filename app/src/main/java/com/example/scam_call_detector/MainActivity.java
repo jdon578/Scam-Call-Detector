@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -151,6 +152,12 @@ public class MainActivity extends AppCompatActivity {
     private void switchActivities(){
         Intent switchActivityIntent = new Intent(this, ReportPhoneNumber.class);
         startActivity(switchActivityIntent);
+    }
+
+    private void switchToReportAuto(String phoneNumber){
+        Intent reportIntent = new Intent(this, ReportPhoneNumber.class);
+        reportIntent.putExtra("phoneNumber", phoneNumber);
+        startActivity(reportIntent);
     }
 
     private void contactAdmin(){
@@ -340,10 +347,18 @@ public class MainActivity extends AppCompatActivity {
                 durationText.setText("Duration: " + callDuration);
                 durationText.setTextSize(18);
 
+                // change to ONLY give option if scam
+                // if it's in the contact list, or unknown, do not add
+                Button goToReport = new Button(MainActivity.this);
+                goToReport.setText("Report");
+                goToReport.setTextSize(16);
+                goToReport.setOnClickListener(v -> switchToReportAuto(phoneNumber));
+
                 layout.addView(phoneText);
                 layout.addView(typeText);
                 layout.addView(dateText);
                 layout.addView(durationText);
+                layout.addView(goToReport);
 
                 card.addView(layout);
 
