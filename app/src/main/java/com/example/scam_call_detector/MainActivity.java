@@ -27,12 +27,15 @@ import androidx.navigation.NavController;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.scam_call_detector.databinding.ActivityMainBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.CallLog;
 import android.util.Log;
 import android.view.Menu;
@@ -57,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private FirebaseFirestore db;
     private static final int REQUEST_CALL_SCREENING_ROLE = 1;
+
+    private SwipeRefreshLayout swipeRefreshLayout;
 
 
     @Override
@@ -116,11 +121,31 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshScreen();
+            }
+        });
+
         db = FirebaseFirestore.getInstance();
         //getAllNumbers();
         getCallLogs();
         requestCallScreeningRole();
         requestPermissions();
+    }
+
+    private void refreshScreen() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable(){
+            @Override
+            public void run() {
+                getCallLogs();
+                Toast.makeText(MainActivity.this, "Refreshed", Toast.LENGTH_LONG).show();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }, 3000);
     }
 
     private void switchActivities(){
@@ -249,13 +274,10 @@ public class MainActivity extends AppCompatActivity {
                 CallLog.Calls.DURATION
         };
 
-
-
-        String sort = CallLog.Calls.DATE + "DESC";
-
         ContentResolver contentResolver = getContentResolver();
 
         LinearLayout container = findViewById(R.id.call_log_container);
+        container.removeAllViews();
 
         try (Cursor cursor = contentResolver.query(callUri, callLogs, null, null, null)){
             if (cursor == null){
@@ -332,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
 
                 cardParams.setMargins(0, 0, 0, 25);
                 card.setLayoutParams(cardParams);
-                container.addView(card);
+                container.addView(card, 0);
             }
         } catch (Exception e){
             Log.e(TAG, "Error getting call logs", e);
