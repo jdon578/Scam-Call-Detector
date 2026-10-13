@@ -64,4 +64,6 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
 
     implementation("androidx.preference:preference-ktx:1.2.1")
+
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
 }

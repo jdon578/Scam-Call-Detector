@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -66,6 +67,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
                 return true;
 
             } else if (id == R.id.action_settings) {
+                startActivity(new Intent(this, Settings.class));
                 return true;
             }
 
@@ -82,6 +84,10 @@ public class ReportPhoneNumber extends AppCompatActivity {
 
         bottomNav.setSelectedItemId(R.id.report_phone_number);
         db = FirebaseFirestore.getInstance();
+
+        String phoneNumber = getIntent().getStringExtra("phoneNumber");
+        phoneNumberEdit = findViewById(R.id.phone_number);
+        phoneNumberEdit.setText(phoneNumber, TextView.BufferType.EDITABLE);
 
         findViewById(R.id.submit_phone).setOnClickListener(
                 new View.OnClickListener(){
