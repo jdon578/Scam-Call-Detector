@@ -150,7 +150,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
      * set the status of the report to verified and move it to the verified_numbers collection
      * @param id
      */
-    public void verifiedRewoshiport(String id)
+    public void verifiedReport(String id)
     {
         DocumentReference pendingRef = db.collection("phone_numbers").document(id);
         DocumentReference verifiedRef = db.collection("verified_numbers").document(id);

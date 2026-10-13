@@ -49,6 +49,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.provider.Settings;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -136,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         getCallLogs();
         requestCallScreeningRole();
         requestPermissions();
+        requestOverlayPermission();
     }
 
     private void refreshScreen() {
@@ -221,11 +223,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Overlay permission is already granted", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     private void requestPermissions() {
         // from GeeksforGeeks
         String[] permissions = {
                 Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.READ_CONTACTS
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.READ_PHONE_STATE
         };
 
         List<String> permissionsToRequest = new ArrayList<>();

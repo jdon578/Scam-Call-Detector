@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.scam_call_detector"
-        minSdk = 24
+        minSdk = 31
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
