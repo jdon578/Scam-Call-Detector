@@ -134,7 +134,7 @@ public class ScamOverlayService extends Service {
                 }
             }
             else if (state == TelephonyManager.CALL_STATE_IDLE && activeState) {
-                removeOverlay();
+                activeState = false;
                 stopSelf();
             }
         }
