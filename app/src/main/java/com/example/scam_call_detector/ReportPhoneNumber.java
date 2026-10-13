@@ -67,7 +67,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
                 return true;
 
             } else if (id == R.id.action_settings) {
-                startActivity(new Intent(this, Settings.class));
+                startActivity(new Intent(this, AppSettings.class));
                 return true;
             }
 

@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void switchToSettings(){
-        Intent settingsIntent = new Intent(this, Settings.class);
+        Intent settingsIntent = new Intent(this, AppSettings.class);
         startActivity(settingsIntent);
     }
 

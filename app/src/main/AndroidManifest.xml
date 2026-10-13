@@ -54,16 +54,19 @@
                 <action android:name="android.telecom.CallScreeningService" />
             </intent-filter>
         </service>
-        <service android:name=".ScamOverlayService" android:exported="false" />
+        <service
+            android:name=".ScamOverlayService"
+            android:exported="false" />
 
         <activity
-            android:name=".Settings"
+            android:name=".AppSettings"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ViewScamNumbers"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>
