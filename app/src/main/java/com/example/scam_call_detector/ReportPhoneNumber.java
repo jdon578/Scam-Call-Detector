@@ -19,6 +19,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -113,6 +115,8 @@ public class ReportPhoneNumber extends AppCompatActivity {
         phone_numbers.put("scamType", info[1]);
         phone_numbers.put("nameAttached", info[3]);
         phone_numbers.put("other", info[4]);
+        phone_numbers.put("status", "pending");
+
 
         db.collection("phone_numbers")
                 .document()
@@ -135,6 +139,81 @@ public class ReportPhoneNumber extends AppCompatActivity {
                     }
                 });
     }
+
+    /**
+     * set the status of the report to verified and move it to the verified_numbers collection
+     * @param id
+     */
+    public void verifiedReport(String id)
+    {
+        DocumentReference pendingRef = db.collection("phone_numbers").document(id);
+        DocumentReference verifiedRef = db.collection("verified_numbers").document(id);
+
+        pendingRef.get().addOnCompleteListener(this, new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                Log.d(TAG, "write:onComplete");
+
+                if (!task.isSuccessful()) {
+                    Log.w(TAG, "write:onComplete:failed", task.getException());
+                    Snackbar.make(findViewById(R.id.submit_phone),
+                            "Unsuccessful " + task.getException(),
+                            Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
+
+                DocumentSnapshot document = task.getResult();
+                if (document == null || !document.exists()) {
+                    Log.d(TAG, "No such document");
+                    return;
+                }
+                Log.d(TAG, "Document exists");
+
+                Map<String, Object> data = document.getData();
+                if (data == null) {
+                    return;
+                }
+
+                data.put("status", "verified");
+                verifiedRef.set(data).addOnCompleteListener(ReportPhoneNumber.this,
+                        new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Log.d(TAG, "verified_numbers:onComplete");
+
+                                if (!task.isSuccessful()) {
+                                    Log.w(TAG, "verified_numbers:failed", task.getException());
+                                    Snackbar.make(findViewById(R.id.submit_phone),
+                                            "Unsuccessful " + task.getException(),
+                                            Snackbar.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                pendingRef.update("status", "verified")
+                                        .addOnCompleteListener(ReportPhoneNumber.this,
+                                                new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        Log.d(TAG, "phone_numbers update:onComplete");
+
+                                                        if (!task.isSuccessful()) {
+                                                            Log.w(TAG, "phone_numbers update:failed",
+                                                                    task.getException());
+                                                            Snackbar.make(findViewById(R.id.submit_phone),
+                                                                    "Unsuccessful " + task.getException(),
+                                                                    Snackbar.LENGTH_SHORT).show();
+                                                            return;
+                                                        }
+
+                                                        Log.d(TAG, "Verification successful");
+                                                    }
+                                                });
+                            }
+                        });
+            }
+        });
+    }
+
 
     public String getNameAttached(String phoneNumber){
         // IN FUTURE, GET NAMES FROM API
