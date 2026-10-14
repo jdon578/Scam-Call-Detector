@@ -3,9 +3,12 @@ package com.example.scam_call_detector;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Build;
+import android.provider.ContactsContract;
 import android.telecom.Call;
 import android.telecom.CallScreeningService;
 import android.util.Log;
@@ -18,8 +21,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
-
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -37,6 +41,12 @@ public class IncomeCall extends CallScreeningService {
         if(incomeNumber != null){
             String phoneNumber = incomeNumber;
             db = FirebaseFirestore.getInstance();
+
+            // don't check for spam if a contact is calling
+            List<String> contactNumbers = getContactList();
+            if (contactNumbers != null && contactNumbers.contains(incomeNumber)) {
+                return;
+            }
 
             Map<String, Object> phone_numbers = new HashMap<>();
             phone_numbers.put("phoneNumber", incomeNumber);
@@ -70,8 +80,6 @@ public class IncomeCall extends CallScreeningService {
                             Log.d("IncomeCall", "Error getting documents: ", task.getException());
                         }
                     });
-
-
         }
 
         CallScreeningService.CallResponse response =
@@ -114,6 +122,36 @@ public class IncomeCall extends CallScreeningService {
                 .build();
 
         NotificationManagerCompat.from(this).notify(phoneNumber.hashCode(), notification);
+    }
+
+    private ArrayList<String> getContactList(){
+        ContentResolver cr = getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null,
+                null, null);
+        if (cur.getCount() > 0) {
+            ArrayList<String> numbers = new ArrayList<>();
+            while (cur.moveToNext()) {
+                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+
+                if (Integer.parseInt(cur.getString(
+                        cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+                    Cursor nCur = cr.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
+                            new String[]{id}, null);
+
+                    // retrieve other numbers for the same contact
+                    while (nCur.moveToNext()) {
+                        String phoneNo = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        numbers.add(phoneNo.replaceAll("[()+- ]",""));
+                    }
+                    nCur.close();
+                }
+            }
+            return numbers;
+        }
+        return null;
     }
 
 
