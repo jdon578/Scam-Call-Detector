@@ -30,6 +30,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.scam_call_detector.databinding.ActivityMainBinding;
+import com.google.android.material.card.MaterialCardView;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -38,12 +40,17 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.CallLog;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -334,22 +341,54 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
 
-                com.google.android.material.card.MaterialCardView card =
-                        new com.google.android.material.card.MaterialCardView(
+                MaterialCardView card =
+                        new MaterialCardView(
                                 MainActivity.this);
                 LinearLayout layout =
                         new LinearLayout(MainActivity.this);
 
                 layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                layout.setGravity(Gravity.CENTER_VERTICAL);
                 layout.setPadding(20, 20, 20, 20);
+
+                // get verified phone numbers
+                db = FirebaseFirestore.getInstance();
+
+                Map<String, Object> phone_numbers = new HashMap<>();
+                phone_numbers.put("phoneNumber", phoneNumber);
+                String[] scamType = {""};
+
+                db.collection("incoming_calls")
+                        .document()
+                        .set(phone_numbers);
+
+                db.collection("verified_numbers")
+                        .whereEqualTo("phoneNumber", phoneNumber)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                if(!task.getResult().isEmpty()){
+                                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                                    scamType[0] = document.getString("scamType");
+
+                                    Log.d("IncomeCall", "Scam number found");
+                                    Log.d("IncomeCall", "Scam type: " + scamType[0]);
+
+                                } else {
+                                    Log.d("IncomeCall", "Number not found:");
+                                }
+                            }
+                            else {
+                                Log.d("IncomeCall", "Error getting documents: ", task.getException());
+                            }
+                        });
 
                 TextView phoneText = new TextView(MainActivity.this);
                 phoneText.setText(phoneNumber);
                 phoneText.setTextSize(18);
 
                 TextView typeText = new TextView(MainActivity.this);
-                typeText.setText("Type: " + callType);
+                typeText.setText("Type: " + dir);
                 typeText.setTextSize(18);
 
                 TextView dateText  = new TextView(MainActivity.this);
@@ -360,18 +399,22 @@ public class MainActivity extends AppCompatActivity {
                 durationText.setText("Duration: " + callDuration);
                 durationText.setTextSize(18);
 
-                // change to ONLY give option if scam
-                // if it's in the contact list, or unknown, do not add
-                Button goToReport = new Button(MainActivity.this);
-                goToReport.setText("Report");
-                goToReport.setTextSize(16);
-                goToReport.setOnClickListener(v -> switchToReportAuto(phoneNumber));
-
                 layout.addView(phoneText);
                 layout.addView(typeText);
                 layout.addView(dateText);
                 layout.addView(durationText);
-                layout.addView(goToReport);
+
+                TextView scamText = new TextView(MainActivity.this);
+                Button goToReport = new Button(MainActivity.this);
+                if(scamType[0] != null){
+                    scamText.setText("Scam Type: " + scamType[0]);
+                    scamText.setTextSize(18);
+                    goToReport.setText("Report");
+                    goToReport.setTextSize(16);
+                    goToReport.setOnClickListener(v -> switchToReportAuto(phoneNumber));
+                    layout.addView(scamText);
+                    layout.addView(goToReport);
+                }
 
                 card.addView(layout);
 
@@ -406,14 +449,14 @@ public class MainActivity extends AppCompatActivity {
                                 String nameAttached = document.getString("nameAttached");
                                 String other = document.getString("other");
 
-                                com.google.android.material.card.MaterialCardView card =
-                                        new com.google.android.material.card.MaterialCardView(
+                                MaterialCardView card =
+                                        new MaterialCardView(
                                                 MainActivity.this);
                                 LinearLayout layout =
                                         new LinearLayout(MainActivity.this);
 
                                 layout.setOrientation(LinearLayout.VERTICAL);
-                                layout.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                                layout.setGravity(Gravity.CENTER_VERTICAL);
                                 layout.setPadding(20, 20, 20, 20);
 
                                 TextView phoneText = new TextView(MainActivity.this);
