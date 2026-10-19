@@ -54,12 +54,20 @@ public class AppSettings extends AppCompatActivity {
 
         findViewById(R.id.view_scam_numbers).setOnClickListener(
                 v -> scamNumbers());
+        findViewById(R.id.contact_filter).setOnClickListener(
+                v -> contactFilter()
+        );
 
     }
 
     private void scamNumbers(){
         Intent scamNumbersIntent = new Intent(this, ViewScamNumbers.class);
         startActivity(scamNumbersIntent);
+    }
+
+    private void contactFilter(){
+        Intent contactsIntent = new Intent(this, ContactFilter.class);
+        startActivity(contactsIntent);
     }
 
     private void contactAdmin(){
