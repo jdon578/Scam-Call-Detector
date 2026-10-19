@@ -1,5 +1,6 @@
 package com.example.scam_call_detector;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import java.util.List;
 
 public class ContactFilter extends AppCompatActivity {
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,15 +37,17 @@ public class ContactFilter extends AppCompatActivity {
         populateList();
         findViewById(R.id.back_arrow).setOnClickListener(v -> finish());
     }
+    @SuppressLint("Range")
+    private void populateList(){
 
-    private ArrayList<String> getContactList(){
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null,
                 null, null);
         if (cur.getCount() > 0) {
-            ArrayList<String> numbers = new ArrayList<>();
+            String number = null;
+            String name = null;
             while (cur.moveToNext()) {
-                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                @SuppressLint("Range") String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
 
                 if (Integer.parseInt(cur.getString(
                         cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
@@ -55,50 +59,45 @@ public class ContactFilter extends AppCompatActivity {
 
                     // retrieve other numbers for the same contact
                     while (nCur.moveToNext()) {
-                        String phoneNo = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        numbers.add(phoneNo.replaceAll("[()+- ]",""));
+                        number = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replace("[() -+]","");
+                        name = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                     }
+
+                    LinearLayout container = findViewById(R.id.contact_container);
+                    com.google.android.material.card.MaterialCardView card =
+                            new com.google.android.material.card.MaterialCardView(
+                                    ContactFilter.this);
+                    LinearLayout layout =
+                            new LinearLayout(ContactFilter.this);
+
+                    layout.setOrientation(LinearLayout.VERTICAL);
+                    layout.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                    layout.setPadding(20, 20, 20, 20);
+
+                    TextView phoneText = new TextView(ContactFilter.this);
+                    phoneText.setText(number);
+                    phoneText.setTextSize(18);
+
+                    TextView phoneName = new TextView(ContactFilter.this);
+                    phoneName.setText(name);
+                    phoneName.setTextSize(18);
+
+                    layout.addView(phoneText);
+                    layout.addView(phoneName);
+
+                    card.addView(layout);
+
+                    LinearLayout.LayoutParams cardParams =
+                            new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT);
+
+                    cardParams.setMargins(0, 0, 0, 25);
+                    card.setLayoutParams(cardParams);
+                    container.addView(card);
                     nCur.close();
                 }
             }
-            return numbers;
-        }
-        return null;
-    }
-
-    private void populateList(){
-        LinearLayout container = findViewById(R.id.scam_number_container);
-        List<String> contactNumbers = getContactList();
-        assert contactNumbers != null;
-        for (String number : contactNumbers) {
-
-            com.google.android.material.card.MaterialCardView card =
-                    new com.google.android.material.card.MaterialCardView(
-                            ContactFilter.this);
-            LinearLayout layout =
-                    new LinearLayout(ContactFilter.this);
-
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setGravity(android.view.Gravity.CENTER_VERTICAL);
-            layout.setPadding(20, 20, 20, 20);
-
-            TextView phoneText = new TextView(ContactFilter.this);
-            phoneText.setText(number);
-            phoneText.setTextSize(18);
-
-            layout.addView(phoneText);
-
-            card.addView(layout);
-
-            LinearLayout.LayoutParams cardParams =
-                    new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
-
-            cardParams.setMargins(0, 0, 0, 25);
-            card.setLayoutParams(cardParams);
-            container.addView(card);
-
         }
     }
 }
