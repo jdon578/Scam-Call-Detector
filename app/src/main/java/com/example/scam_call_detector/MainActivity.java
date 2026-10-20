@@ -338,15 +338,11 @@ public class MainActivity extends AppCompatActivity {
                 int sec = 0;
                 if(durINT > 3600){
                     hour = durINT/3600;
-                    for(int i = 0; i < hour; i++){
-                        durINT = durINT-3600;
-                    }
+                    durINT = durINT-(3600*hour);
                 }
                 if(durINT > 60){
                     min = durINT/60;
-                    for(int i = 0; i < min; i++){
-                        durINT = durINT-60;
-                    }
+                    durINT = durINT-(60*min);
                 }
                 sec = durINT;
 
