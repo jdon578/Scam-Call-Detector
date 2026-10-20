@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="NumberType">
+        <item>Call</item>
+        <item>Text</item>
+    </string-array>
     <string-array name="ScamTypes">
+        <item>Auto Warranty</item>
         <item>Bank</item>
+        <item>"Can You Hear Me"</item>
+        <item>Discount</item>
+        <item>Family Emergency</item>
         <item>Health/Life Insurance</item>
+        <item>Identity Theft</item>
+        <item>Neighbor Spoofing</item>
+        <item>Phishing</item>
         <item>Political</item>
         <item>Requesting Money</item>
+        <item>Social Security Number</item>
+        <item>Tech Support</item>
+        <item>Voicemail</item>
         <item>Other</item>
     </string-array>
 </resources>

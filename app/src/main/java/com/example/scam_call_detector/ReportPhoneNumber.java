@@ -40,6 +40,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
     BottomNavigationView bottomNav;
 
     EditText phoneNumberEdit;
+    Spinner numberTypeEdit;
     Spinner scamTypeEdit;
     EditText otherEdit;
 
@@ -96,13 +97,15 @@ public class ReportPhoneNumber extends AppCompatActivity {
                     public void onClick(View v) {
                         phoneNumberEdit = findViewById(R.id.phone_number);
                         String phoneNumber = phoneNumberEdit.getText().toString();
+                        numberTypeEdit = findViewById(R.id.number_type);
+                        String numberType = scamTypeEdit.getSelectedItem().toString();
                         scamTypeEdit = findViewById(R.id.scam_type);
                         String scamType = scamTypeEdit.getSelectedItem().toString();
                         String location = getLocation(phoneNumber);
                         String nameAttached = getNameAttached(phoneNumber);
                         otherEdit = findViewById(R.id.other_information);
                         String other = otherEdit.getText().toString();
-                        String[] info = {phoneNumber, scamType, location, nameAttached, other};
+                        String[] info = {phoneNumber, scamType, location, nameAttached, other, numberType};
 
                         if(phoneNumber.isEmpty() || other.isEmpty()){
                             Toast.makeText(getApplicationContext(), "Please enter the data", Toast.LENGTH_SHORT).show();
@@ -118,10 +121,12 @@ public class ReportPhoneNumber extends AppCompatActivity {
         Map<String, Object> phone_numbers = new HashMap<>();
         phone_numbers.put("phoneNumber", info[0]);
         phone_numbers.put("location", info[2]);
+        phone_numbers.put("numberType", info[5]);
         phone_numbers.put("scamType", info[1]);
         phone_numbers.put("nameAttached", info[3]);
         phone_numbers.put("other", info[4]);
         phone_numbers.put("status", "pending");
+        phone_numbers.put("globalStatus", "pending"); // change with global database verification
 
 
         db.collection("phone_numbers")

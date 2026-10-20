@@ -2,6 +2,7 @@
 <resources>
     <string name = "report_number">Report</string>
     <string name = "go_home">Home</string>
+    <string name = "number_type">Type</string>
     <string name = "scam_type">Scam Type</string>
     <string name = "phone_number">Phone Number</string>
     <string name = "other_information">Other Information</string>

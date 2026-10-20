@@ -1,6 +1,7 @@
 package com.example.scam_call_detector;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.role.RoleManager;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -44,6 +45,10 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -323,6 +328,27 @@ public class MainActivity extends AppCompatActivity {
                 String callDuration = cursor.getString(durationID);
 
                 Date callDayTime = new Date(Long.parseLong(callDate));
+                LocalDateTime dateTime = callDayTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                DateTimeFormatter callDayTimeFormatted = DateTimeFormatter.ofPattern("MM-dd-yyyy hh:mm a");
+                String finalCallDate = dateTime.format(callDayTimeFormatted);
+
+                int durINT = Integer.parseInt(callDuration);
+                int hour = 0;
+                int min = 0;
+                int sec = 0;
+                if(durINT > 3600){
+                    hour = durINT/3600;
+                    for(int i = 0; i < hour; i++){
+                        durINT = durINT-3600;
+                    }
+                }
+                if(durINT > 60){
+                    min = durINT/60;
+                    for(int i = 0; i < min; i++){
+                        durINT = durINT-60;
+                    }
+                }
+                sec = durINT;
 
                 String dir = "UNKNOWN";
                 int dircode = Integer.parseInt(callType);
@@ -392,11 +418,12 @@ public class MainActivity extends AppCompatActivity {
                 typeText.setTextSize(18);
 
                 TextView dateText  = new TextView(MainActivity.this);
-                dateText.setText("Date: " + callDayTime);
+                dateText.setText("Date: " + finalCallDate);
                 dateText.setTextSize(18);
 
                 TextView durationText  = new TextView(MainActivity.this);
-                durationText.setText("Duration: " + callDuration);
+                @SuppressLint("DefaultLocale") String formatDuration = String.format("%02d:%02d:%02d", hour, min, sec);
+                durationText.setText("Duration: " + formatDuration);
                 durationText.setTextSize(18);
 
                 layout.addView(phoneText);
@@ -430,78 +457,5 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e){
             Log.e(TAG, "Error getting call logs", e);
         }
-    }
-
-    public void getAllNumbers() {
-        // [START get_all_users]
-        db.collection("phone_numbers")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            LinearLayout container = findViewById(R.id.call_log_container);
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-//                                Log.d(TAG, document.getId() + " => " + document.getData());
-                                String phoneNumber = document.getString("phoneNumber");
-                                String location = document.getString("location");
-                                String scamType = document.getString("scamType");
-                                String nameAttached = document.getString("nameAttached");
-                                String other = document.getString("other");
-
-                                MaterialCardView card =
-                                        new MaterialCardView(
-                                                MainActivity.this);
-                                LinearLayout layout =
-                                        new LinearLayout(MainActivity.this);
-
-                                layout.setOrientation(LinearLayout.VERTICAL);
-                                layout.setGravity(Gravity.CENTER_VERTICAL);
-                                layout.setPadding(20, 20, 20, 20);
-
-                                TextView phoneText = new TextView(MainActivity.this);
-                                phoneText.setText(phoneNumber);
-                                phoneText.setTextSize(18);
-
-                                TextView nameText = new TextView(MainActivity.this);
-                                nameText.setText("Name: " + nameAttached);
-                                nameText.setTextSize(18);
-
-                                TextView typeText  = new TextView(MainActivity.this);
-                                typeText.setText("Scam Type: "+ scamType);
-                                typeText.setTextSize(18);
-
-                                TextView locationText  = new TextView(MainActivity.this);
-                                locationText .setText("location: " + location);
-                                locationText .setTextSize(18);
-
-                                TextView otherText  = new TextView(MainActivity.this);
-                                otherText.setText("other: " + other);
-                                otherText.setTextSize(18);
-
-                                layout.addView(phoneText);
-                                layout.addView(nameText);
-                                layout.addView(typeText);
-                                layout.addView(locationText);
-                                layout.addView(otherText);
-
-                                card.addView(layout);
-
-                                LinearLayout.LayoutParams cardParams =
-                                        new LinearLayout.LayoutParams(
-                                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                                LinearLayout.LayoutParams.WRAP_CONTENT);
-
-                                cardParams.setMargins(0, 0, 0, 25);
-                                card.setLayoutParams(cardParams);
-                                container.addView(card);
-
-                            }
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
-                        }
-                    }
-                });
-        // [END get_all_users]
     }
 }
