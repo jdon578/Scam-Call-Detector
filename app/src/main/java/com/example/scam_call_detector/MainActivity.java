@@ -429,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
 
                 TextView scamText = new TextView(MainActivity.this);
                 Button goToReport = new Button(MainActivity.this);
-                if(scamType[0] != null){
+                if(!scamType[0].isEmpty()){
                     scamText.setText("Scam Type: " + scamType[0]);
                     scamText.setTextSize(18);
                     goToReport.setText("Report");
