@@ -18,6 +18,20 @@
         android:visibility="invisible"
         app:srcCompat="@drawable/ic_plus_foreground" />
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
@@ -55,6 +69,23 @@
             android:layout_height="48dp"
             app:srcCompat="@drawable/outline_arrow_left_alt_24" />
 
+
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/filter_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="7dp"
+        android:alpha="0.7"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="Back"
+        android:padding="12dp"
+        android:src="@drawable/outline_align_horizontal_right_24"
+        android:tint="@android:color/white"
+        app:layout_anchor="@+id/toolbar3"
+        app:layout_anchorGravity="end|center"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
