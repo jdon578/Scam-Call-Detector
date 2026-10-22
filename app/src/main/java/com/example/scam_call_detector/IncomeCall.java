@@ -160,7 +160,7 @@ public class IncomeCall extends CallScreeningService {
                     // retrieve other numbers for the same contact
                     while (nCur.moveToNext()) {
                         String phoneNo = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        numbers.add(phoneNo.replaceAll("[()+- ]",""));
+                        numbers.add(phoneNo.replaceAll("[()+\\- ]",""));
                     }
                     nCur.close();
                 }
