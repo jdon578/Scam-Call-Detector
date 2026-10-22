@@ -30,9 +30,17 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.Firebase;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class ScamOverlayService extends Service {
 
     private WindowManager windowManager;
+
+    private FirebaseFirestore db;
     private View overlayView;
     private TelephonyManager telephonyManager;
     private TelephonyCallback telephonyCallback;
@@ -51,7 +59,21 @@ public class ScamOverlayService extends Service {
          scamType = intent.getStringExtra("scamType");
 
         //showOverlay(phoneNumber, scamType);
-        registerCallStateListener();
+        db = FirebaseFirestore.getInstance();
+        db.collection("blocked_numbers")
+            .whereEqualTo("phoneNumber", phoneNumber)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if(!task.getResult().isEmpty()){
+                            Log.d("IncomeCall", "Blocked number found");
+                            showNotification(phoneNumber,scamType);
+                            stopSelf();
+                            return;
+                        }
+                    }
+                    registerCallStateListener();
+                        });
         return START_NOT_STICKY;
     }
 
@@ -92,8 +114,24 @@ public class ScamOverlayService extends Service {
         botton.setBackgroundColor(Color.RED);
         botton.setTextColor(Color.WHITE);
         botton.setOnClickListener(v -> {
-            removeOverlay();
-            stopSelf();
+            db = FirebaseFirestore.getInstance();
+            Map<String, Object> block_numbers = new HashMap<>();
+            block_numbers.put("phoneNumber", phoneNumber);
+            block_numbers.put("scamType", scamType);
+            db.collection("blocked_numbers")
+                    .document()
+                    .set(block_numbers)
+                    .addOnCompleteListener(task->{
+                        if(task.isSuccessful()){
+                            Log.d("OverlayService", "write:onComplete");
+                            removeOverlay();
+                            stopSelf();
+                        }
+                        else{
+                            Log.w("OverlayService", "write:onComplete:failed", task.getException());
+                        }
+                    });
+
         });
 
         layout.addView(title);

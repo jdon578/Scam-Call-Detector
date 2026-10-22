@@ -51,6 +51,22 @@ public class IncomeCall extends CallScreeningService {
             Map<String, Object> phone_numbers = new HashMap<>();
             phone_numbers.put("phoneNumber", incomeNumber);
 
+            db.collection("blocked_numbers")
+                    .whereEqualTo("phoneNumber", incomeNumber)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            if(!task.getResult().isEmpty()){
+                                Log.d("IncomeCall", "Blocked number found");
+                                rejectCall(callDetails);
+                            }
+                        }
+                        else{
+                            acceptCall(callDetails);
+                        }
+
+                    });
+
             db.collection("incoming_calls")
                     .document()
                     .set(phone_numbers);
@@ -82,15 +98,15 @@ public class IncomeCall extends CallScreeningService {
                     });
         }
 
-        CallScreeningService.CallResponse response =
-                new CallScreeningService.CallResponse.Builder()
-                        .setDisallowCall(false)
-                        .setRejectCall(false)
-                        .setSkipCallLog(false)
-                        .setSkipNotification(false)
-                        .build();
-
-        respondToCall(callDetails, response);
+//        CallScreeningService.CallResponse response =
+//                new CallScreeningService.CallResponse.Builder()
+//                        .setDisallowCall(false)
+//                        .setRejectCall(false)
+//                        .setSkipCallLog(false)
+//                        .setSkipNotification(false)
+//                        .build();
+//
+//        respondToCall(callDetails, response);
     }
 
     public void showNotification(String phoneNumber, String scamType){
@@ -154,5 +170,28 @@ public class IncomeCall extends CallScreeningService {
         return null;
     }
 
+    public void rejectCall(Call.Details callDetails){
+        CallScreeningService.CallResponse response =
+                new CallScreeningService.CallResponse.Builder()
+                        .setDisallowCall(true)
+                        .setRejectCall(true)
+                        .setSkipCallLog(false)
+                        .setSkipNotification(true)
+                        .build();
+        respondToCall(callDetails, response);
+
+    }
+
+    public void acceptCall(Call.Details callDetails){
+        CallScreeningService.CallResponse response =
+                new CallScreeningService.CallResponse.Builder()
+                        .setDisallowCall(false)
+                        .setRejectCall(false)
+                        .setSkipCallLog(false)
+                        .setSkipNotification(false)
+                        .build();
+        respondToCall(callDetails, response);
+
+    }
 
 }
