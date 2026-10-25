@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
     implementation(libs.coordinatorlayout)
+    implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.material)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
@@ -66,4 +67,6 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.1")
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

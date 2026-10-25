@@ -1,5 +1,7 @@
 package com.example.scam_call_detector;
 
+import static com.google.common.base.Predicates.equalTo;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,13 +26,27 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import android.content.Intent;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.scam_call_detector.databinding.ActivityReportPhoneNumberBinding;
+import com.twilio.http.HttpClient;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttp;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class ReportPhoneNumber extends AppCompatActivity {
 
@@ -43,6 +59,10 @@ public class ReportPhoneNumber extends AppCompatActivity {
     Spinner numberTypeEdit;
     Spinner scamTypeEdit;
     EditText otherEdit;
+
+    private final OkHttpClient client = new OkHttpClient();
+    private static final String API_TOKEN = "6mxdtn5wck20glbyz4j1pq3s7e9fio";
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +110,17 @@ public class ReportPhoneNumber extends AppCompatActivity {
         phoneNumberEdit = findViewById(R.id.phone_number);
         phoneNumberEdit.setText(phoneNumber, TextView.BufferType.EDITABLE);
 
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    getRequestTest("1234567890");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
         findViewById(R.id.submit_phone).setOnClickListener(
                 new View.OnClickListener(){
 
@@ -110,6 +141,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
                         if(phoneNumber.isEmpty() || other.isEmpty()){
                             Toast.makeText(getApplicationContext(), "Please enter the data", Toast.LENGTH_SHORT).show();
                         } else {
+                            //checkNumberGlobal(phoneNumber);
                             submitReport(info);
                         }
                     }
@@ -150,6 +182,101 @@ public class ReportPhoneNumber extends AppCompatActivity {
                     }
                 });
     }
+
+    // GET request
+    /*public void checkNumberGlobal(String phoneNumber){
+        String url = "https://scamsearch.io/api/search";
+        String type = "phone";
+        String encodedQuery = "";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            encodedQuery = URLEncoder.encode(phoneNumber, StandardCharsets.UTF_8);
+        }
+        String fullUrl = String.format("%s?search=%s&type=%s&api_token=%s", url, encodedQuery, type, API_TOKEN);
+        Request request = new Request.Builder().url(fullUrl).build();
+
+        Map<String, Object> verified = new HashMap<>();
+        verified.put("phoneNumber", phoneNumber);
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+                showToast("Request Failed");
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    assert response.body() != null;
+                    final String responseData = response.body().string();// Read data
+                    //verified.put("response", responseData);
+                    db.collection("global_verified")
+                            .document()
+                            .set(verified)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Log.d(TAG, "write:onComplete");
+                                    if(!task.isSuccessful()){
+                                        Log.w(TAG, "write:onComplete:failed", task.getException());
+                                        Snackbar.make(findViewById(R.id.submit_phone), "Unsuccessful " + task.getException(), Snackbar.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                } else {
+                    showToast("Server error: " + response.code());
+                }
+            }
+        });
+    }*/
+
+
+    public void getRequestTest(String phoneNumber) throws IOException {
+        /*String baseURL = "https://github.com/";
+        Request request = new Request.Builder()
+                .url(baseURL + "/jdon578")
+                .build();
+        Call call = client.newCall(request);
+        Response response = call.execute();
+
+        if(response.code() == 200){
+            showToast("Request received");
+        }*/
+
+        String url = "https://scamsearch.io/api/search";
+        String type = "phone";
+        String encodedQuery = "";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            encodedQuery = URLEncoder.encode(phoneNumber, StandardCharsets.UTF_8);
+        }
+        String fullUrl = String.format("%s?search=%s&type=%s&api_token=%s", url, encodedQuery, type, API_TOKEN);
+        Request request = new Request.Builder().url(fullUrl).build();
+
+        Map<String, Object> verified = new HashMap<>();
+        verified.put("phoneNumber", phoneNumber);
+
+        Call call = client.newCall(request);
+        Response response = call.execute();
+        if(response.code() == 200){
+            String responseData = response.body().string();
+            verified.put("response", responseData);
+            db.collection("global_verified")
+                    .document()
+                    .set(verified)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Log.d(TAG, "write:onComplete");
+                            if(!task.isSuccessful()){
+                                Log.w(TAG, "write:onComplete:failed", task.getException());
+                                Snackbar.make(findViewById(R.id.submit_phone), "Unsuccessful " + task.getException(), Snackbar.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+            showToast("Request received");
+        }
+    }
+
 
     /**
      * set the status of the report to verified and move it to the verified_numbers collection
@@ -265,6 +392,10 @@ public class ReportPhoneNumber extends AppCompatActivity {
     private void contactAdmin(){
         Intent contactAdminIntent = new Intent(this, ContactAdmin.class);
         startActivity(contactAdminIntent);
+    }
+
+    private void showToast(String message) {
+        runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show());
     }
 
 }
