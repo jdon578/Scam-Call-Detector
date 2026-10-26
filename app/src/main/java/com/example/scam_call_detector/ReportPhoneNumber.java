@@ -110,16 +110,16 @@ public class ReportPhoneNumber extends AppCompatActivity {
         phoneNumberEdit = findViewById(R.id.phone_number);
         phoneNumberEdit.setText(phoneNumber, TextView.BufferType.EDITABLE);
 
-        executorService.execute(new Runnable() {
+        /*executorService.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    getRequestTest("1234567890");
+                    getRequestTest(phoneNumber);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
-        });
+        });*/
 
         findViewById(R.id.submit_phone).setOnClickListener(
                 new View.OnClickListener(){
@@ -129,20 +129,66 @@ public class ReportPhoneNumber extends AppCompatActivity {
                         phoneNumberEdit = findViewById(R.id.phone_number);
                         String phoneNumber = phoneNumberEdit.getText().toString();
                         numberTypeEdit = findViewById(R.id.number_type);
-                        String numberType = scamTypeEdit.getSelectedItem().toString();
+                        String numberType = numberTypeEdit.getSelectedItem().toString();
                         scamTypeEdit = findViewById(R.id.scam_type);
                         String scamType = scamTypeEdit.getSelectedItem().toString();
                         String location = getLocation(phoneNumber);
                         String nameAttached = getNameAttached(phoneNumber);
                         otherEdit = findViewById(R.id.other_information);
                         String other = otherEdit.getText().toString();
-                        String[] info = {phoneNumber, scamType, location, nameAttached, other, numberType};
+                        String[] info = {phoneNumber, scamType, location, nameAttached, other, numberType, ""};
 
                         if(phoneNumber.isEmpty() || other.isEmpty()){
                             Toast.makeText(getApplicationContext(), "Please enter the data", Toast.LENGTH_SHORT).show();
                         } else {
-                            //checkNumberGlobal(phoneNumber);
-                            submitReport(info);
+                            String url = "https://scamsearch.io/api/search";
+                            String type = "phone";
+                            String encodedQuery = "";
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                encodedQuery = URLEncoder.encode(phoneNumber, StandardCharsets.UTF_8);
+                            }
+                            String fullUrl = String.format("%s?search=%s&type=%s&api_token=%s", url, encodedQuery, type, API_TOKEN);
+                            Request request = new Request.Builder().url(fullUrl).build();
+
+                            Map<String, Object> verified = new HashMap<>();
+                            verified.put("phoneNumber", phoneNumber);
+                            client.newCall(request).enqueue(new Callback() {
+                                @Override
+                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                    e.printStackTrace();
+                                    runOnUiThread(() ->
+                                            Toast.makeText(ReportPhoneNumber.this, "Request failed", Toast.LENGTH_SHORT).show()
+                                    );
+                                }
+
+                                @Override
+                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                    if (response.isSuccessful() && response.body() != null) {
+                                        final String responseData = response.body().string();
+                                        info[6] = responseData;
+
+                                        verified.put("response", responseData);
+                                        db.collection("global_verified")
+                                                .document()
+                                                .set(verified)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        Log.d(TAG, "write:onComplete");
+                                                        if(!task.isSuccessful()){
+                                                            Log.w(TAG, "write:onComplete:failed", task.getException());
+                                                            Snackbar.make(findViewById(R.id.submit_phone), "Unsuccessful " + task.getException(), Snackbar.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
+
+                                        runOnUiThread(() ->
+                                                Toast.makeText(ReportPhoneNumber.this, "Request received", Toast.LENGTH_SHORT).show()
+                                        );
+                                        submitReport(info);
+                                    }
+                                }
+                            });
                         }
                     }
                 });
@@ -158,7 +204,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
         phone_numbers.put("nameAttached", info[3]);
         phone_numbers.put("other", info[4]);
         phone_numbers.put("status", "pending");
-        phone_numbers.put("globalStatus", "pending"); // change with global database verification
+        phone_numbers.put("globalStatus", info[6]); // change with global database verification
 
 
         db.collection("phone_numbers")
@@ -182,54 +228,6 @@ public class ReportPhoneNumber extends AppCompatActivity {
                     }
                 });
     }
-
-    // GET request
-    /*public void checkNumberGlobal(String phoneNumber){
-        String url = "https://scamsearch.io/api/search";
-        String type = "phone";
-        String encodedQuery = "";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            encodedQuery = URLEncoder.encode(phoneNumber, StandardCharsets.UTF_8);
-        }
-        String fullUrl = String.format("%s?search=%s&type=%s&api_token=%s", url, encodedQuery, type, API_TOKEN);
-        Request request = new Request.Builder().url(fullUrl).build();
-
-        Map<String, Object> verified = new HashMap<>();
-        verified.put("phoneNumber", phoneNumber);
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-                showToast("Request Failed");
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    assert response.body() != null;
-                    final String responseData = response.body().string();// Read data
-                    //verified.put("response", responseData);
-                    db.collection("global_verified")
-                            .document()
-                            .set(verified)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Log.d(TAG, "write:onComplete");
-                                    if(!task.isSuccessful()){
-                                        Log.w(TAG, "write:onComplete:failed", task.getException());
-                                        Snackbar.make(findViewById(R.id.submit_phone), "Unsuccessful " + task.getException(), Snackbar.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-                } else {
-                    showToast("Server error: " + response.code());
-                }
-            }
-        });
-    }*/
-
 
     public void getRequestTest(String phoneNumber) throws IOException {
         /*String baseURL = "https://github.com/";
