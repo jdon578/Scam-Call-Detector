@@ -50,6 +50,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+// Use Google's libphonenumber library to check if a phone number is valid
+//Version: 9.0.40
+//Source: https://github.com/google/libphonenumber
+
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
+
+
 public class ReportPhoneNumber extends AppCompatActivity {
 
     private static final String TAG = "ReportPhoneNumber";
@@ -130,6 +139,21 @@ public class ReportPhoneNumber extends AppCompatActivity {
                     public void onClick(View v) {
                         phoneNumberEdit = findViewById(R.id.phone_number);
                         String phoneNumber = phoneNumberEdit.getText().toString();
+
+                        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+                        Phonenumber.PhoneNumber phoneNumberObj = null;
+                        try {
+                            phoneNumberObj = phoneUtil.parse(phoneNumber, "US");
+                            boolean isValid = phoneUtil.isValidNumber(phoneNumberObj);
+                            if(!isValid){
+                                Toast.makeText(getApplicationContext(), "Invalid phone number", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        } catch (NumberParseException e) {
+                            e.printStackTrace();
+                            return;
+                        }
+
                         numberTypeEdit = findViewById(R.id.number_type);
                         String numberType = numberTypeEdit.getSelectedItem().toString();
                         scamTypeEdit = findViewById(R.id.scam_type);
@@ -195,7 +219,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
                                         runOnUiThread(() ->
                                                 Toast.makeText(ReportPhoneNumber.this, "Request received", Toast.LENGTH_SHORT).show()
                                         );
-                                        submitReport(info, isFound );
+                                        submitReport(info, isFound);
                                     }
                                 }
                             });

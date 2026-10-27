@@ -69,4 +69,6 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.42")
 }
