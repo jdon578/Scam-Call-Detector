@@ -71,4 +71,5 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     implementation("com.googlecode.libphonenumber:libphonenumber:9.0.42")
+    implementation("com.googlecode.libphonenumber:geocoder:3.42")
 }

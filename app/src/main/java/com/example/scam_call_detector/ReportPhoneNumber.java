@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executor;
@@ -57,6 +58,7 @@ import okhttp3.Response;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+import com.google.i18n.phonenumbers.geocoding.PhoneNumberOfflineGeocoder;
 
 
 public class ReportPhoneNumber extends AppCompatActivity {
@@ -158,7 +160,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
                         String numberType = numberTypeEdit.getSelectedItem().toString();
                         scamTypeEdit = findViewById(R.id.scam_type);
                         String scamType = scamTypeEdit.getSelectedItem().toString();
-                        String location = getLocation(phoneNumber);
+                        String location = getLocation(phoneNumber); // currently null
                         String nameAttached = getNameAttached(phoneNumber);
                         otherEdit = findViewById(R.id.other_information);
                         String other = otherEdit.getText().toString();
@@ -269,53 +271,6 @@ public class ReportPhoneNumber extends AppCompatActivity {
                 });
     }
 
-    public void getRequestTest(String phoneNumber) throws IOException {
-        /*String baseURL = "https://github.com/";
-        Request request = new Request.Builder()
-                .url(baseURL + "/jdon578")
-                .build();
-        Call call = client.newCall(request);
-        Response response = call.execute();
-
-        if(response.code() == 200){
-            showToast("Request received");
-        }*/
-
-        String url = "https://scamsearch.io/api/search";
-        String type = "phone";
-        String encodedQuery = "";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            encodedQuery = URLEncoder.encode(phoneNumber, StandardCharsets.UTF_8);
-        }
-        String fullUrl = String.format("%s?search=%s&type=%s&api_token=%s", url, encodedQuery, type, API_TOKEN);
-        Request request = new Request.Builder().url(fullUrl).build();
-
-        Map<String, Object> verified = new HashMap<>();
-        verified.put("phoneNumber", phoneNumber);
-
-        Call call = client.newCall(request);
-        Response response = call.execute();
-        if(response.code() == 200){
-            String responseData = response.body().string();
-            verified.put("response", responseData);
-            db.collection("global_verified")
-                    .document()
-                    .set(verified)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            Log.d(TAG, "write:onComplete");
-                            if(!task.isSuccessful()){
-                                Log.w(TAG, "write:onComplete:failed", task.getException());
-                                Snackbar.make(findViewById(R.id.submit_phone), "Unsuccessful " + task.getException(), Snackbar.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-            showToast("Request received");
-        }
-    }
-
-
     /**
      * set the status of the report to verified and move it to the verified_numbers collection
      * @param id
@@ -416,15 +371,22 @@ public class ReportPhoneNumber extends AppCompatActivity {
         return nameAttachedVal;
     }
 
-    public String getLocation(String phoneNumber){
-        // IN FUTURE, GET LOCATIONS FROM API, HAVE CASES FOR ALL DIFFERENT INPUTS
-        // if string is xxx-xxx-xxxx
-        String[] splitNumber = phoneNumber.split("-");
-        String locationVal = "";
-        if(splitNumber[0].equals("800")){
-            locationVal = "Business";
+    public String getLocation(String phoneNumber) {
+        String splitNumber = phoneNumber.substring(0, 3);
+        if(splitNumber.equals("844")){
+            return "Toll-Free";
+        } else if(splitNumber.equals("800")){
+            return "Business";
         }
-        return locationVal;
+        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+        PhoneNumberOfflineGeocoder geocoder = PhoneNumberOfflineGeocoder.getInstance();
+        Phonenumber.PhoneNumber number = null;
+        try {
+            number = phoneUtil.parse(phoneNumber, "US");
+        } catch (NumberParseException e) {
+            throw new RuntimeException(e);
+        }
+        return geocoder.getDescriptionForNumber(number, Locale.ENGLISH);
     }
 
     private void contactAdmin(){
