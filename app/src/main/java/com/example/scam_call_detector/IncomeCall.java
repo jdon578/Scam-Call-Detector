@@ -26,6 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// Use Google's libphonenumber library to check if a phone number is valid
+//Version: 9.0.40
+//Source: https://github.com/google/libphonenumber
+
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 public class IncomeCall extends CallScreeningService {
 
@@ -47,6 +54,24 @@ public class IncomeCall extends CallScreeningService {
             if (contactNumbers != null && contactNumbers.contains(incomeNumber)) {
                 return;
             }
+
+            PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+            Phonenumber.PhoneNumber phoneNumberObj = null;
+            try {
+                phoneNumberObj = phoneUtil.parse(incomeNumber, "US");
+                boolean isValid = phoneUtil.isValidNumber(phoneNumberObj);
+                if(!isValid){
+                    rejectCall(callDetails);
+                    return;
+                }
+                String standardNumber = phoneUtil.format(phoneNumberObj, PhoneNumberUtil.PhoneNumberFormat.E164);
+                incomeNumber = standardNumber;
+                String countryCode = phoneUtil.getRegionCodeForCountryCode(phoneNumberObj.getCountryCode());
+            } catch (NumberParseException e) {
+                e.printStackTrace();
+                return;
+            }
+
 
             Map<String, Object> phone_numbers = new HashMap<>();
             phone_numbers.put("phoneNumber", incomeNumber);
