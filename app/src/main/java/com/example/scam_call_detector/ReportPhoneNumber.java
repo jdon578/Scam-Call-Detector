@@ -41,6 +41,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.scam_call_detector.databinding.ActivityReportPhoneNumberBinding;
 import com.twilio.http.HttpClient;
 
+import org.json.JSONObject;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttp;
@@ -166,6 +168,14 @@ public class ReportPhoneNumber extends AppCompatActivity {
                                     if (response.isSuccessful() && response.body() != null) {
                                         final String responseData = response.body().string();
                                         info[6] = responseData;
+                                        boolean isFound = false;
+
+                                        try{
+                                            JSONObject jsonObject = new JSONObject(responseData);
+                                            isFound = jsonObject.optBoolean("status",false);
+                                        } catch (Exception e){
+                                            isFound = false;
+                                        }
 
                                         verified.put("response", responseData);
                                         db.collection("global_verified")
@@ -185,7 +195,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
                                         runOnUiThread(() ->
                                                 Toast.makeText(ReportPhoneNumber.this, "Request received", Toast.LENGTH_SHORT).show()
                                         );
-                                        submitReport(info);
+                                        submitReport(info, isFound );
                                     }
                                 }
                             });
@@ -195,7 +205,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
         //findViewById(R.id.submit_phone).setOnClickListener(view -> finish());
     }
 
-    public void submitReport(String[] info){
+    public void submitReport(String[] info, boolean isFound ){
         Map<String, Object> phone_numbers = new HashMap<>();
         phone_numbers.put("phoneNumber", info[0]);
         phone_numbers.put("location", info[2]);
@@ -207,9 +217,9 @@ public class ReportPhoneNumber extends AppCompatActivity {
         phone_numbers.put("globalStatus", info[6]); // change with global database verification
 
 
-        db.collection("phone_numbers")
-                .document()
-                .set(phone_numbers)
+        DocumentReference pendingRef = db.collection("phone_numbers").document();
+
+        pendingRef.set(phone_numbers)
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -219,6 +229,12 @@ public class ReportPhoneNumber extends AppCompatActivity {
                             Snackbar.make(findViewById(R.id.submit_phone), "Unsuccessful " + task.getException(), Snackbar.LENGTH_SHORT).show();
                         }
                         else {
+                            String id = pendingRef.getId();
+                            Log.d(TAG, "id: " + id);
+                            if(isFound){
+                                verifiedReport(id);
+                            }
+
                             new AlertDialog.Builder(ReportPhoneNumber.this)
                                     .setTitle("Report Confirmation")
                                     .setMessage("\nYou have successfully submitted the report.")
