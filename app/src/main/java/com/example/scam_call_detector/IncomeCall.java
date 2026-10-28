@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,13 +148,16 @@ public class IncomeCall extends CallScreeningService {
                     }
                 });
 
-
-
             Map<String, Object> phone_numbers = new HashMap<>();
             phone_numbers.put("phoneNumber", incomeNumber);
 
+            String IncomeNumberWith1 = incomeNumber.replace("+", "");
+            String IncomeNumberWithOut1 = String.valueOf(phoneNumberObj.getNationalNumber());
+
+            List<String> numbers = Arrays.asList(IncomeNumberWith1, IncomeNumberWithOut1);
+
             db.collection("blocked_numbers")
-                    .whereEqualTo("phoneNumber", incomeNumber)
+                    .whereIn("phoneNumber", numbers)
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -163,10 +167,12 @@ public class IncomeCall extends CallScreeningService {
                             }
                         }
                         else{
+                            Log.d("IncomeCall", "Blocked number not found");
                             acceptCall(callDetails);
                         }
 
                     });
+
 
             db.collection("incoming_calls")
                     .document()
@@ -190,7 +196,7 @@ public class IncomeCall extends CallScreeningService {
                                 intent.putExtra("scamType", scamType);
                                 startService(intent);
                             } else {
-                                Log.d("IncomeCall", "Number not found:");
+                                Log.d("IncomeCall", "Verified Number not found:");
                             }
                         }
                         else {
@@ -272,6 +278,9 @@ public class IncomeCall extends CallScreeningService {
     }
 
     public void rejectCall(Call.Details callDetails){
+
+        Log.d("IncomeCall", "Automatic rejection triggered by IncomeCall");
+
         CallScreeningService.CallResponse response =
                 new CallScreeningService.CallResponse.Builder()
                         .setDisallowCall(true)

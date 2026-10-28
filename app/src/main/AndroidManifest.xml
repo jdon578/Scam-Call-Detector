@@ -40,14 +40,6 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
-        <receiver
-            android:name=".IncomeCallReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-            </intent-filter>
-        </receiver>
-
         <service
             android:name=".IncomeCall"
             android:exported="true"
