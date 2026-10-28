@@ -251,7 +251,9 @@ public class MainActivity extends AppCompatActivity {
                 Manifest.permission.READ_CALL_LOG,
                 Manifest.permission.READ_CONTACTS,
                 Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.INTERNET
+                Manifest.permission.INTERNET,
+                Manifest.permission.READ_VOICEMAIL,
+                Manifest.permission.WRITE_VOICEMAIL
         };
 
         List<String> permissionsToRequest = new ArrayList<>();

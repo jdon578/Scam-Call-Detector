@@ -57,6 +57,9 @@ public class AppSettings extends AppCompatActivity {
         findViewById(R.id.contact_filter).setOnClickListener(
                 v -> contactFilter()
         );
+        findViewById(R.id.voicemail_button).setOnClickListener(
+                v -> voicemails()
+        );
 
     }
 
@@ -73,5 +76,10 @@ public class AppSettings extends AppCompatActivity {
     private void contactAdmin(){
         Intent contactAdminIntent = new Intent(this, ContactAdmin.class);
         startActivity(contactAdminIntent);
+    }
+
+    private void voicemails(){
+        Intent voicemailIntent = new Intent(this, VoicemailList.class);
+        startActivity(voicemailIntent);
     }
 }

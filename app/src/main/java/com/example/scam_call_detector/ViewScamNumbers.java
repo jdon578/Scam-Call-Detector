@@ -55,8 +55,11 @@ public class ViewScamNumbers extends AppCompatActivity {
                                 String phoneNumber = document.getString("phoneNumber");
                                 String location = document.getString("location");
                                 String scamType = document.getString("scamType");
+                                String numberType = document.getString("numberType");
                                 String nameAttached = document.getString("nameAttached");
                                 String other = document.getString("other");
+                                String status = document.getString("status");
+                                String globalStatus = document.getString("globalStatus");
 
                                 com.google.android.material.card.MaterialCardView card =
                                         new com.google.android.material.card.MaterialCardView(
@@ -80,6 +83,10 @@ public class ViewScamNumbers extends AppCompatActivity {
                                 typeText.setText("Scam Type: "+ scamType);
                                 typeText.setTextSize(18);
 
+                                TextView numberTypeText  = new TextView(ViewScamNumbers.this);
+                                numberTypeText.setText("Number Type: "+ numberType);
+                                numberTypeText.setTextSize(18);
+
                                 TextView locationText  = new TextView(ViewScamNumbers.this);
                                 locationText .setText("location: " + location);
                                 locationText .setTextSize(18);
@@ -88,11 +95,22 @@ public class ViewScamNumbers extends AppCompatActivity {
                                 otherText.setText("other: " + other);
                                 otherText.setTextSize(18);
 
+                                TextView statusText  = new TextView(ViewScamNumbers.this);
+                                statusText.setText("status: " + status);
+                                statusText.setTextSize(18);
+
+                                TextView globalStatusText  = new TextView(ViewScamNumbers.this);
+                                globalStatusText.setText("global status: " + globalStatus);
+                                globalStatusText.setTextSize(18);
+
                                 layout.addView(phoneText);
                                 layout.addView(nameText);
                                 layout.addView(typeText);
+                                layout.addView(numberTypeText);
                                 layout.addView(locationText);
                                 layout.addView(otherText);
+                                layout.addView(statusText);
+                                layout.addView(globalStatusText);
 
                                 card.addView(layout);
 
