@@ -8,19 +8,29 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.ContactsContract;
 import android.telecom.Call;
 import android.telecom.CallScreeningService;
 import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,9 +44,20 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
+import org.json.JSONObject;
+import org.json.JSONArray;
+
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class IncomeCall extends CallScreeningService {
 
     private FirebaseFirestore db;
+    private static final String API_TOKEN = "6mxdtn5wck20glbyz4j1pq3s7e9fio";
+    private final OkHttpClient client = new OkHttpClient();
+    private static final String TAG = "IncomeNumber";
     @Override
     public void onScreenCall(Call.Details callDetails) {
 
@@ -66,11 +87,66 @@ public class IncomeCall extends CallScreeningService {
                 }
                 String standardNumber = phoneUtil.format(phoneNumberObj, PhoneNumberUtil.PhoneNumberFormat.E164);
                 incomeNumber = standardNumber;
-                String countryCode = phoneUtil.getRegionCodeForCountryCode(phoneNumberObj.getCountryCode());
+//                String countryCode = phoneUtil.getRegionCodeForCountryCode(phoneNumberObj.getCountryCode());
             } catch (NumberParseException e) {
                 e.printStackTrace();
                 return;
             }
+
+                String url = "https://scamsearch.io/api/search";
+                String type = "phone";
+                String encodedQuery = "";
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    encodedQuery = URLEncoder.encode(phoneNumber, StandardCharsets.UTF_8);
+                }
+                String fullUrl = String.format("%s?search=%s&type=%s&api_token=%s", url, encodedQuery, type, API_TOKEN);
+                Request request = new Request.Builder().url(fullUrl).build();
+
+                Map<String, Object> verified = new HashMap<>();
+                verified.put("phoneNumber", phoneNumber);
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                        e.printStackTrace();
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                Toast.makeText(IncomeCall.this, "Request failed", Toast.LENGTH_SHORT).show()
+                        );
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull okhttp3.Call call, @NonNull Response response) throws IOException {
+                        if (response.isSuccessful() && response.body() != null) {
+                            final String responseData = response.body().string();
+                            boolean isFound = false;
+                            String scamType = null;
+
+                            try{
+                                JSONObject jsonObject = new JSONObject(responseData);
+
+                                JSONArray resultArray = jsonObject.optJSONArray("result");
+                                isFound = jsonObject.optBoolean("status",false);
+
+                                if(isFound && resultArray != null){
+                                    JSONObject resultObject = resultArray.optJSONObject(0);
+                                    scamType = resultObject.optString("scammertype");
+
+                                    Log.d("IncomeCall", "Scam number found");
+                                    Log.d("IncomeCall", "Scam type: " + scamType);
+
+                                    //showNotification(phoneNumber,scamType);
+                                    Intent intent = new Intent(IncomeCall.this, ScamOverlayService.class);
+                                    intent.putExtra("phoneNumber", phoneNumber);
+                                    intent.putExtra("scamType", scamType);
+                                    startService(intent);
+                                }
+                            } catch (Exception e){
+                                isFound = false;
+                            }
+
+                        }
+                    }
+                });
+
 
 
             Map<String, Object> phone_numbers = new HashMap<>();
