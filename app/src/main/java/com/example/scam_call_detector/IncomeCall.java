@@ -94,67 +94,13 @@ public class IncomeCall extends CallScreeningService {
                 return;
             }
 
-                String url = "https://scamsearch.io/api/search";
-                String type = "phone";
-                String encodedQuery = "";
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    encodedQuery = URLEncoder.encode(phoneNumber, StandardCharsets.UTF_8);
-                }
-                String fullUrl = String.format("%s?search=%s&type=%s&api_token=%s", url, encodedQuery, type, API_TOKEN);
-                Request request = new Request.Builder().url(fullUrl).build();
-
-                Map<String, Object> verified = new HashMap<>();
-                verified.put("phoneNumber", phoneNumber);
-                client.newCall(request).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
-                        e.printStackTrace();
-                        new Handler(Looper.getMainLooper()).post(() ->
-                                Toast.makeText(IncomeCall.this, "Request failed", Toast.LENGTH_SHORT).show()
-                        );
-                    }
-
-                    @Override
-                    public void onResponse(@NonNull okhttp3.Call call, @NonNull Response response) throws IOException {
-                        if (response.isSuccessful() && response.body() != null) {
-                            final String responseData = response.body().string();
-                            boolean isFound = false;
-                            String scamType = null;
-
-                            try{
-                                JSONObject jsonObject = new JSONObject(responseData);
-
-                                JSONArray resultArray = jsonObject.optJSONArray("result");
-                                isFound = jsonObject.optBoolean("status",false);
-
-                                if(isFound && resultArray != null){
-                                    JSONObject resultObject = resultArray.optJSONObject(0);
-                                    scamType = resultObject.optString("scammertype");
-
-                                    Log.d("IncomeCall", "Scam number found");
-                                    Log.d("IncomeCall", "Scam type: " + scamType);
-
-                                    //showNotification(phoneNumber,scamType);
-                                    Intent intent = new Intent(IncomeCall.this, ScamOverlayService.class);
-                                    intent.putExtra("phoneNumber", phoneNumber);
-                                    intent.putExtra("scamType", scamType);
-                                    startService(intent);
-                                }
-                            } catch (Exception e){
-                                isFound = false;
-                            }
-
-                        }
-                    }
-                });
-
             Map<String, Object> phone_numbers = new HashMap<>();
             phone_numbers.put("phoneNumber", incomeNumber);
 
             String IncomeNumberWith1 = incomeNumber.replace("+", "");
             String IncomeNumberWithOut1 = String.valueOf(phoneNumberObj.getNationalNumber());
 
-            List<String> numbers = Arrays.asList(IncomeNumberWith1, IncomeNumberWithOut1);
+            List<String> numbers = Arrays.asList(IncomeNumberWith1, IncomeNumberWithOut1, incomeNumber);
 
             db.collection("blocked_numbers")
                     .whereIn("phoneNumber", numbers)
@@ -170,7 +116,7 @@ public class IncomeCall extends CallScreeningService {
                             Log.d("IncomeCall", "Blocked number not found");
                             acceptCall(callDetails);
                         }
-
+                        checkScamTypeFromVerified(phoneNumber,numbers);
                     });
 
 
@@ -178,31 +124,10 @@ public class IncomeCall extends CallScreeningService {
                     .document()
                     .set(phone_numbers);
 
-            db.collection("verified_numbers")
-                    .whereEqualTo("phoneNumber", incomeNumber)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            if(!task.getResult().isEmpty()){
-                                DocumentSnapshot document = task.getResult().getDocuments().get(0);
-                                String scamType = document.getString("scamType");
+            List<String> inComingNumbers = Arrays.asList( incomeNumber,IncomeNumberWith1, IncomeNumberWithOut1);
 
-                                Log.d("IncomeCall", "Scam number found");
-                                Log.d("IncomeCall", "Scam type: " + scamType);
 
-                                //showNotification(phoneNumber,scamType);
-                                Intent intent = new Intent(this, ScamOverlayService.class);
-                                intent.putExtra("phoneNumber", phoneNumber);
-                                intent.putExtra("scamType", scamType);
-                                startService(intent);
-                            } else {
-                                Log.d("IncomeCall", "Verified Number not found:");
-                            }
-                        }
-                        else {
-                            Log.d("IncomeCall", "Error getting documents: ", task.getException());
-                        }
-                    });
+
         }
 
 //        CallScreeningService.CallResponse response =
@@ -303,5 +228,94 @@ public class IncomeCall extends CallScreeningService {
         respondToCall(callDetails, response);
 
     }
+
+
+    public void scamOverlay(String phoneNumber, String scamType){
+
+        Intent intent = new Intent(IncomeCall.this, ScamOverlayService.class);
+        intent.putExtra("phoneNumber", phoneNumber);
+        intent.putExtra("scamType", scamType);
+        startService(intent);
+    }
+
+    public void checkScamTypeFromVerified(String phoneNumber, List<String> incomeNumbers){
+
+        db.collection("verified_numbers")
+                .whereIn("phoneNumber", incomeNumbers)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if(!task.getResult().isEmpty()){
+                            DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                            String scamType = document.getString("scamType");
+                            scamOverlay(phoneNumber,scamType);
+                            Log.d("IncomeCall", "Scam number found");
+                            Log.d("IncomeCall", "Scam type: " + scamType);
+                            return;
+
+                        } else {
+                            Log.d("IncomeCall", "Verified Number not found:");
+                        }
+                    }
+                    else {
+                        Log.d("IncomeCall", "Error getting documents: ", task.getException());
+                    }
+                    checkScamTypeFromAPI(phoneNumber);
+                });
+    }
+
+    public void checkScamTypeFromAPI(String phoneNumber){
+        String url = "https://scamsearch.io/api/search";
+        String type = "phone";
+        String encodedQuery = "";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            encodedQuery = URLEncoder.encode(phoneNumber, StandardCharsets.UTF_8);
+        }
+        String fullUrl = String.format("%s?search=%s&type=%s&api_token=%s", url, encodedQuery, type, API_TOKEN);
+        Request request = new Request.Builder().url(fullUrl).build();
+
+        Map<String, Object> verified = new HashMap<>();
+        verified.put("phoneNumber", phoneNumber);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                e.printStackTrace();
+                new Handler(Looper.getMainLooper()).post(() ->
+                        Toast.makeText(IncomeCall.this, "Request failed", Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    final String responseData = response.body().string();
+                    boolean isFound = false;
+                    String scamType = null;
+
+                    try{
+                        JSONObject jsonObject = new JSONObject(responseData);
+
+                        JSONArray resultArray = jsonObject.optJSONArray("result");
+                        isFound = jsonObject.optBoolean("status",false);
+
+                        if(isFound && resultArray != null){
+                            JSONObject resultObject = resultArray.optJSONObject(0);
+                            scamType = resultObject.optString("scammertype");
+                            scamOverlay(phoneNumber,scamType);
+
+                            Log.d("IncomeCall", "Scam number found");
+                            Log.d("IncomeCall", "Scam type: " + scamType);
+                        }
+                    } catch (Exception e){
+                        isFound = false;
+                    }
+
+                }
+            }
+        });
+
+    }
+
+
 
 }
