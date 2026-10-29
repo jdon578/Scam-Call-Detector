@@ -43,14 +43,21 @@ public class ContactFilter extends AppCompatActivity {
             return insets;
         });
         ImageButton filterButton = findViewById(R.id.filter_button);
+        TextView main_title = findViewById(R.id.main_title);
         filterButton.setOnClickListener(view -> {
             PopupMenu popup = new PopupMenu(this, filterButton);
-            popup.getMenu().add("Block Numbers");
-            popup.getMenu().add("Unblock Numbers");
+            popup.getMenu().add("Blocked Numbers");
+            popup.getMenu().add("Contact");
 
             popup.setOnMenuItemClickListener(item -> {
-                if(item.getTitle().equals("Block Numbers")){
+                if(item.getTitle().equals("Blocked Numbers")){
+                    main_title.setText("Blocked Numbers");
                     showBlockNumbers();
+                    return true;
+                }
+                if(item.getTitle().equals("Contact")){
+                    main_title.setText("Contact");
+                    populateList();
                     return true;
                 }
                 return false;
@@ -64,6 +71,9 @@ public class ContactFilter extends AppCompatActivity {
     }
     @SuppressLint("Range")
     private void populateList(){
+
+        LinearLayout container = findViewById(R.id.contact_container);
+        container.removeAllViews();
 
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null,
@@ -88,7 +98,6 @@ public class ContactFilter extends AppCompatActivity {
                         name = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                     }
 
-                    LinearLayout container = findViewById(R.id.contact_container);
                     com.google.android.material.card.MaterialCardView card =
                             new com.google.android.material.card.MaterialCardView(
                                     ContactFilter.this);
