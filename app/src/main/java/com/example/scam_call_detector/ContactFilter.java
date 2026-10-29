@@ -6,10 +6,12 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 
@@ -155,7 +157,7 @@ public class ContactFilter extends AppCompatActivity {
                         for(QueryDocumentSnapshot document : task.getResult())
                         {
                             String number = document.getString("phoneNumber");
-                            String name = document.getString("name");
+                            String scamType = document.getString("scamType");
                             com.google.android.material.card.MaterialCardView card =
                                     new com.google.android.material.card.MaterialCardView(
                                             ContactFilter.this);
@@ -171,11 +173,34 @@ public class ContactFilter extends AppCompatActivity {
                             phoneText.setTextSize(18);
 
                             TextView phoneName = new TextView(ContactFilter.this);
-                            phoneName.setText(name);
+                            phoneName.setText(scamType);
                             phoneName.setTextSize(18);
+
+                            Button unblockButton = new Button(ContactFilter.this);
+                            unblockButton.setText("Unblock");
+
+                            unblockButton.setOnClickListener(view -> {
+                                String documentId = document.getId();
+                                db.collection("blocked_numbers").document(documentId)
+                                        .delete()
+                                        .addOnCompleteListener(task1 ->{
+                                            if(task1.isSuccessful())
+                                            {
+                                                Log.d("ContactFilter", "Document deleted successfully");
+                                                Toast.makeText(ContactFilter.this, "Number unblocked", Toast.LENGTH_SHORT).show();
+                                                showBlockNumbers();
+                                            }
+                                            else
+                                            {
+                                                Toast.makeText(ContactFilter.this, "Error deleting number", Toast.LENGTH_SHORT).show();
+                                                Log.d("ContactFilter", "Error deleting document", task1.getException());
+                                            }
+                                        });
+                            });
 
                             layout.addView(phoneText);
                             layout.addView(phoneName);
+                            layout.addView(unblockButton);
 
                             card.addView(layout);
 
