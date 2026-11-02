@@ -381,32 +381,10 @@ public class MainActivity extends AppCompatActivity {
 
                 Map<String, Object> phone_numbers = new HashMap<>();
                 phone_numbers.put("phoneNumber", phoneNumber);
-                String[] scamType = {""};
 
                 db.collection("incoming_calls")
                         .document()
                         .set(phone_numbers);
-
-                db.collection("verified_numbers")
-                        .whereEqualTo("phoneNumber", phoneNumber)
-                        .get()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                if(!task.getResult().isEmpty()){
-                                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
-                                    scamType[0] = document.getString("scamType");
-
-                                    Log.d("IncomeCall", "Scam number found");
-                                    Log.d("IncomeCall", "Scam type: " + scamType[0]);
-
-                                } else {
-                                    Log.d("IncomeCall", "Number not found:");
-                                }
-                            }
-                            else {
-                                Log.d("IncomeCall", "Error getting documents: ", task.getException());
-                            }
-                        });
 
                 TextView phoneText = new TextView(MainActivity.this);
                 phoneText.setText(phoneNumber);
@@ -430,17 +408,39 @@ public class MainActivity extends AppCompatActivity {
                 layout.addView(dateText);
                 layout.addView(durationText);
 
-                TextView scamText = new TextView(MainActivity.this);
-                Button goToReport = new Button(MainActivity.this);
-                if(!scamType[0].isEmpty()){
-                    scamText.setText("Scam Type: " + scamType[0]);
-                    scamText.setTextSize(18);
-                    goToReport.setText("Report");
-                    goToReport.setTextSize(16);
-                    goToReport.setOnClickListener(v -> switchToReportAuto(phoneNumber));
-                    layout.addView(scamText);
-                    layout.addView(goToReport);
-                }
+                db.collection("verified_numbers")
+                        .whereEqualTo("phoneNumber", phoneNumber)
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                if(!task.getResult().isEmpty()){
+                                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                                    String scamType;
+                                    scamType = document.getString("scamType");
+
+                                    TextView scamText = new TextView(MainActivity.this);
+                                    Button goToReport = new Button(MainActivity.this);
+                                    if(scamType != null){
+                                        scamText.setText("Scam Type: " + scamType);
+                                        scamText.setTextSize(18);
+                                        goToReport.setText("Report");
+                                        goToReport.setTextSize(16);
+                                        goToReport.setOnClickListener(v -> switchToReportAuto(phoneNumber));
+                                        layout.addView(scamText);
+                                        layout.addView(goToReport);
+                                    }
+
+                                    Log.d("IncomeCall", "Scam number found");
+                                    Log.d("IncomeCall", "Scam type: " + scamType);
+
+                                } else {
+                                    Log.d("IncomeCall", "Number not found:");
+                                }
+                            }
+                            else {
+                                Log.d("IncomeCall", "Error getting documents: ", task.getException());
+                            }
+                        });
 
                 card.addView(layout);
 
