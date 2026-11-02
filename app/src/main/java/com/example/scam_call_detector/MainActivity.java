@@ -40,6 +40,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.CallLog;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -251,9 +252,7 @@ public class MainActivity extends AppCompatActivity {
                 Manifest.permission.READ_CALL_LOG,
                 Manifest.permission.READ_CONTACTS,
                 Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.INTERNET,
-                Manifest.permission.READ_VOICEMAIL,
-                Manifest.permission.WRITE_VOICEMAIL
+                Manifest.permission.INTERNET
         };
 
         List<String> permissionsToRequest = new ArrayList<>();
@@ -404,6 +403,13 @@ public class MainActivity extends AppCompatActivity {
                 durationText.setTextSize(18);
 
                 layout.addView(phoneText);
+                TextView nameText = new TextView(MainActivity.this);
+                String name = getContact(phoneNumber);
+                if(name != null){
+                    nameText.setText(name);
+                    nameText.setTextSize(18);
+                    layout.addView(nameText);
+                }
                 layout.addView(typeText);
                 layout.addView(dateText);
                 layout.addView(durationText);
@@ -456,5 +462,41 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e){
             Log.e(TAG, "Error getting call logs", e);
         }
+    }
+
+    @SuppressLint("Range")
+    public String getContact(String phoneNumber) {
+        phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
+        String number = "";
+        String name = "";
+        ContentResolver cr = getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null,
+                null, null);
+        if (cur.getCount() > 0) {
+            while (cur.moveToNext()) {
+                @SuppressLint("Range") String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+
+                if (Integer.parseInt(cur.getString(
+                        cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+                    Cursor nCur = cr.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                            new String[]{id}, null);
+
+                    // retrieve other numbers for the same contact
+                    while (nCur.moveToNext()) {
+                        number = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[^0-9]", "");
+                        name = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                        if(number.equals(phoneNumber)){
+                            nCur.close();
+                            return name;
+                        }
+                    }
+                    nCur.close();
+                }
+            }
+        }
+        return null;
     }
 }

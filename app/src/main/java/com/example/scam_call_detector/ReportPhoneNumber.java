@@ -160,11 +160,10 @@ public class ReportPhoneNumber extends AppCompatActivity {
                         String numberType = numberTypeEdit.getSelectedItem().toString();
                         scamTypeEdit = findViewById(R.id.scam_type);
                         String scamType = scamTypeEdit.getSelectedItem().toString();
-                        String location = getLocation(phoneNumber); // currently null
-                        String nameAttached = getNameAttached(phoneNumber);
+                        String location = getLocation(phoneNumber);
                         otherEdit = findViewById(R.id.other_information);
                         String other = otherEdit.getText().toString();
-                        String[] info = {phoneNumber, scamType, location, nameAttached, other, numberType, ""};
+                        String[] info = {phoneNumber, scamType, location, other, numberType, ""};
 
                         if(phoneNumber.isEmpty() || other.isEmpty()){
                             Toast.makeText(getApplicationContext(), "Please enter the data", Toast.LENGTH_SHORT).show();
@@ -193,7 +192,7 @@ public class ReportPhoneNumber extends AppCompatActivity {
                                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                                     if (response.isSuccessful() && response.body() != null) {
                                         final String responseData = response.body().string();
-                                        info[6] = responseData;
+                                        info[5] = responseData;
                                         boolean isFound = false;
 
                                         try{
@@ -235,12 +234,11 @@ public class ReportPhoneNumber extends AppCompatActivity {
         Map<String, Object> phone_numbers = new HashMap<>();
         phone_numbers.put("phoneNumber", info[0]);
         phone_numbers.put("location", info[2]);
-        phone_numbers.put("numberType", info[5]);
+        phone_numbers.put("numberType", info[4]);
         phone_numbers.put("scamType", info[1]);
-        phone_numbers.put("nameAttached", info[3]);
-        phone_numbers.put("other", info[4]);
+        phone_numbers.put("other", info[3]);
         phone_numbers.put("status", "pending");
-        phone_numbers.put("globalStatus", info[6]); // change with global database verification
+        phone_numbers.put("globalStatus", info[5]); // change with global database verification
 
 
         DocumentReference pendingRef = db.collection("phone_numbers").document();
@@ -343,32 +341,6 @@ public class ReportPhoneNumber extends AppCompatActivity {
                         });
             }
         });
-    }
-
-
-    public String getNameAttached(String phoneNumber){
-        // IN FUTURE, GET NAMES FROM API
-        // currently for testing purposes
-        String[] splitNumber = phoneNumber.split("-");
-        String nameAttachedVal = "";
-        // FOR TESTING
-        Random random = new Random();
-        int rand = 0;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            rand = random.nextInt(0, 10);
-        }
-        if(rand == 1 || rand == 6){
-            nameAttachedVal = "Jack Moore";
-        } else if(rand == 2 || rand == 7){
-            nameAttachedVal = "Donnie Darko";
-        } else if(rand == 3 || rand == 8){
-            nameAttachedVal = "Kaz Miller";
-        } else if(rand == 4 || rand == 9){
-            nameAttachedVal = "Solid Snake";
-        } else if(rand == 5 || rand == 10){
-            nameAttachedVal = "Ellen Ripley";
-        }
-        return nameAttachedVal;
     }
 
     public String getLocation(String phoneNumber) {

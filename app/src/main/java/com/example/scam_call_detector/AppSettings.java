@@ -57,9 +57,9 @@ public class AppSettings extends AppCompatActivity {
         findViewById(R.id.contact_filter).setOnClickListener(
                 v -> contactFilter()
         );
-        findViewById(R.id.voicemail_button).setOnClickListener(
+        /*findViewById(R.id.voicemail_button).setOnClickListener(
                 v -> voicemails()
-        );
+        );*/
 
     }
 

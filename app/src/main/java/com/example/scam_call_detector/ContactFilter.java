@@ -123,7 +123,7 @@ public class ContactFilter extends AppCompatActivity {
 
                     // retrieve other numbers for the same contact
                     while (nCur.moveToNext()) {
-                        number = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replace("[() -+]","");
+                        number = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[^0-9]","");
                         name = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                         if(blockNumbers.containsKey(number)){
                             continue;

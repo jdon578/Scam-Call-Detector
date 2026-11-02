@@ -1,5 +1,6 @@
 package com.example.scam_call_detector;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -172,6 +173,7 @@ public class IncomeCall extends CallScreeningService {
         NotificationManagerCompat.from(this).notify(phoneNumber.hashCode(), notification);
     }
 
+    @SuppressLint("Range")
     private ArrayList<String> getContactList(){
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null,
@@ -179,7 +181,7 @@ public class IncomeCall extends CallScreeningService {
         if (cur.getCount() > 0) {
             ArrayList<String> numbers = new ArrayList<>();
             while (cur.moveToNext()) {
-                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                @SuppressLint("Range") String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
 
                 if (Integer.parseInt(cur.getString(
                         cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
@@ -192,7 +194,7 @@ public class IncomeCall extends CallScreeningService {
                     // retrieve other numbers for the same contact
                     while (nCur.moveToNext()) {
                         String phoneNo = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        numbers.add(phoneNo.replaceAll("[()+\\- ]",""));
+                        numbers.add(phoneNo.replaceAll("[^0-9]",""));
                     }
                     nCur.close();
                 }
