@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
@@ -33,6 +34,9 @@ import androidx.core.content.ContextCompat;
 import com.google.firebase.Firebase;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +52,7 @@ public class ScamOverlayService extends Service {
     private  String phoneNumber;
     private  String scamType;
     private boolean activeState = false;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -59,21 +64,23 @@ public class ScamOverlayService extends Service {
          scamType = intent.getStringExtra("scamType");
 
         //showOverlay(phoneNumber, scamType);
-        db = FirebaseFirestore.getInstance();
-        db.collection("blocked_numbers")
-            .whereEqualTo("phoneNumber", phoneNumber)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        if(!task.getResult().isEmpty()){
-                            Log.d("IncomeCall", "Blocked number found");
-                            showNotification(phoneNumber,scamType);
-                            stopSelf();
-                            return;
-                        }
-                    }
-                    registerCallStateListener();
-                        });
+//        db = FirebaseFirestore.getInstance();
+//        db.collection("blocked_numbers")
+//            .whereEqualTo("phoneNumber", phoneNumber)
+//                .get()
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        if(!task.getResult().isEmpty()){
+//                            Log.d("IncomeCall", "Blocked number found");
+//                            showNotification(phoneNumber,scamType);
+//                            stopSelf();
+//                            return;
+//                        }
+//                    }
+//                    registerCallStateListener();
+//                        });
+
+        registerCallStateListener();
         return START_NOT_STICKY;
     }
 
@@ -114,23 +121,27 @@ public class ScamOverlayService extends Service {
         botton.setBackgroundColor(Color.RED);
         botton.setTextColor(Color.WHITE);
         botton.setOnClickListener(v -> {
-            db = FirebaseFirestore.getInstance();
-            Map<String, Object> block_numbers = new HashMap<>();
-            block_numbers.put("phoneNumber", phoneNumber);
-            block_numbers.put("scamType", scamType);
-            db.collection("blocked_numbers")
-                    .document()
-                    .set(block_numbers)
-                    .addOnCompleteListener(task->{
-                        if(task.isSuccessful()){
-                            Log.d("OverlayService", "write:onComplete");
-                            removeOverlay();
-                            stopSelf();
-                        }
-                        else{
-                            Log.w("OverlayService", "write:onComplete:failed", task.getException());
-                        }
-                    });
+//            db = FirebaseFirestore.getInstance();
+//            Map<String, Object> block_numbers = new HashMap<>();
+//            block_numbers.put("phoneNumber", phoneNumber);
+//            block_numbers.put("scamType", scamType);
+//            db.collection("blocked_numbers")
+//                    .document()
+//                    .set(block_numbers)
+//                    .addOnCompleteListener(task->{
+//                        if(task.isSuccessful()){
+//                            Log.d("OverlayService", "write:onComplete");
+//                            removeOverlay();
+//                            stopSelf();
+//                        }
+//                        else{
+//                            Log.w("OverlayService", "write:onComplete:failed", task.getException());
+//                        }
+//                    });
+            saveBlockNumber(phoneNumber, scamType);
+            removeOverlay();
+            stopSelf();
+
 
         });
 
@@ -231,5 +242,38 @@ public class ScamOverlayService extends Service {
                 .build();
 
         NotificationManagerCompat.from(this).notify(phoneNumber.hashCode(), notification);
+    }
+
+    private JSONArray getBlockNumbers(String key){
+        String json = sharedPreferences.getString(key, null);
+        if(json != null) {
+            try{
+                JSONArray blockNumbers = new JSONArray(json);
+                return blockNumbers;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return new JSONArray();
+    }
+
+    private void saveBlockNumber(String number, String type){
+        sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        String key = "blocked_numbers";
+        JSONArray blockNumbers = getBlockNumbers("blocked_numbers");
+        try{
+            JSONObject blockNumber = new JSONObject();
+
+            number = number.replaceAll("[^0-9]","");
+            blockNumber.put("phoneNumber",number);
+            blockNumber.put("scamType", type);
+
+            blockNumbers.put(blockNumber);
+
+            sharedPreferences.edit().putString(key, blockNumbers.toString()).apply();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

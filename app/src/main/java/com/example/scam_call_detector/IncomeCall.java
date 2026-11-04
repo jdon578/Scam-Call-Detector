@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
@@ -60,6 +61,7 @@ public class IncomeCall extends CallScreeningService {
     private static final String API_TOKEN = "6mxdtn5wck20glbyz4j1pq3s7e9fio";
     private final OkHttpClient client = new OkHttpClient();
     private static final String TAG = "IncomeNumber";
+    private SharedPreferences sharedPreferences;
     @Override
     public void onScreenCall(Call.Details callDetails) {
 
@@ -71,12 +73,6 @@ public class IncomeCall extends CallScreeningService {
         if(incomeNumber != null){
             String phoneNumber = incomeNumber;
             db = FirebaseFirestore.getInstance();
-
-            // don't check for spam if a contact is calling
-            List<String> contactNumbers = getContactList();
-            if (contactNumbers != null && contactNumbers.contains(incomeNumber)) {
-                return;
-            }
 
             PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
             Phonenumber.PhoneNumber phoneNumberObj = null;
@@ -103,22 +99,42 @@ public class IncomeCall extends CallScreeningService {
 
             List<String> numbers = Arrays.asList(IncomeNumberWith1, IncomeNumberWithOut1, incomeNumber);
 
-            db.collection("blocked_numbers")
-                    .whereIn("phoneNumber", numbers)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            if(!task.getResult().isEmpty()){
-                                Log.d("IncomeCall", "Blocked number found");
-                                rejectCall(callDetails);
-                            }
-                        }
-                        else{
-                            Log.d("IncomeCall", "Blocked number not found");
-                            acceptCall(callDetails);
-                        }
-                        checkScamTypeFromVerified(phoneNumber,numbers);
-                    });
+//            db.collection("blocked_numbers")
+//                    .whereIn("phoneNumber", numbers)
+//                    .get()
+//                    .addOnCompleteListener(task -> {
+//                        if (task.isSuccessful()) {
+//                            if(!task.getResult().isEmpty()){
+//                                Log.d("IncomeCall", "Blocked number found");
+//                                rejectCall(callDetails);
+//                            }
+//                        }
+//                        else{
+//                            Log.d("IncomeCall", "Blocked number not found");
+//                            acceptCall(callDetails);
+//                        }
+//                        checkScamTypeFromVerified(phoneNumber,numbers);
+//                    });
+
+            boolean isBlocked = isBlocked(numbers);
+            if(isBlocked){
+                showNotification(phoneNumber, "blocked");
+                rejectCall(callDetails);
+                return;
+            }
+
+            // don't check for spam if a contact is calling
+            List<String> contactNumbers = getContactList();
+            if (contactNumbers != null ) {
+                for (String number : numbers) {
+                    if (contactNumbers.contains(number)) {
+                        return;
+                    }
+                }
+            }
+
+            acceptCall(callDetails);
+            checkScamTypeFromVerified(phoneNumber,numbers);
 
 
             db.collection("incoming_calls")
@@ -164,7 +180,7 @@ public class IncomeCall extends CallScreeningService {
         Notification notification = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_report_foreground)
                 .setContentTitle("Phone number flagged as scam")
-                .setContentText("Scam type:" + scamType)
+                .setContentText(scamType)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
                 .setAutoCancel(true)
@@ -318,6 +334,44 @@ public class IncomeCall extends CallScreeningService {
 
     }
 
+    private JSONArray getBlockNumbers(String key){
+        sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        String json = sharedPreferences.getString(key, null);
+        if(json != null) {
+            try{
+                JSONArray blockNumbers = new JSONArray(json);
+                return blockNumbers;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return new JSONArray();
+    }
 
+    private boolean isBlocked(List<String> numbers){
+        String[] keys = {"blocked_numbers", "blocked_contact_numbers"};
+        for(String key : keys){
+            JSONArray blockNumbers = getBlockNumbers(key);
 
+            Log.d(TAG, "Checking key: " + key);
+            Log.d(TAG, "Blocked numbers: " + blockNumbers.toString());
+
+            for(int i = 0; i < blockNumbers.length(); i++){
+                try{
+                    JSONObject blockNumber = blockNumbers.getJSONObject(i);
+                    String blockedNumber = blockNumber.getString("phoneNumber").replaceAll("[^0-9]","");
+                    for(String number : numbers){
+                        String incomNumber = number.replaceAll("[^0-9]","");
+                        if(blockedNumber.equals(incomNumber)){
+                            return true;
+                        }
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return false;
+    }
 }
