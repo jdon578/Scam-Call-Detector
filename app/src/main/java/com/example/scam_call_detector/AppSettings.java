@@ -40,6 +40,9 @@ public class AppSettings extends AppCompatActivity {
 
             } else if (id == R.id.action_settings) {
                 return true;
+            } else if(item.getItemId() == R.id.information){
+                startActivity(new Intent(this, InformationCards.class));
+                return true;
             }
 
             return false;

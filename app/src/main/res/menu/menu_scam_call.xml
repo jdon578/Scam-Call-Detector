@@ -11,6 +11,10 @@
         android:icon="@drawable/ic_report_foreground"
         android:title="@string/report_number" />
     <item
+        android:id="@+id/information"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="@string/information" />
+    <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings_foreground"
         android:title="@string/action_settings" />

@@ -72,4 +72,6 @@ dependencies {
 
     implementation("com.googlecode.libphonenumber:libphonenumber:9.0.42")
     implementation("com.googlecode.libphonenumber:geocoder:3.42")
+
+    implementation("androidx.cardview:cardview:1.0.0")
 }

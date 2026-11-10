@@ -103,6 +103,9 @@ public class ReportPhoneNumber extends AppCompatActivity {
             } else if (id == R.id.action_settings) {
                 startActivity(new Intent(this, AppSettings.class));
                 return true;
+            } else if(item.getItemId() == R.id.information){
+                startActivity(new Intent(this, InformationCards.class));
+                return true;
             }
 
             return false;

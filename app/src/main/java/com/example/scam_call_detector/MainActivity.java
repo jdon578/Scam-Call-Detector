@@ -133,6 +133,11 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
 
+            if(item.getItemId() == R.id.information){
+                switchToInfo();
+                return true;
+            }
+
             return false;
         });
 
@@ -173,6 +178,11 @@ public class MainActivity extends AppCompatActivity {
         Intent reportIntent = new Intent(this, ReportPhoneNumber.class);
         reportIntent.putExtra("phoneNumber", phoneNumber);
         startActivity(reportIntent);
+    }
+
+    private void switchToInfo(){
+        Intent switchActivityInfo = new Intent(this, InformationCards.class);
+        startActivity(switchActivityInfo);
     }
 
     private void contactAdmin(){

@@ -8,6 +8,7 @@
         <item>Auto Warranty</item>
         <item>Bank</item>
         <item>"Can You Hear Me"</item>
+        <item>Charity</item>
         <item>Discount</item>
         <item>Family Emergency</item>
         <item>Health/Life Insurance</item>
@@ -20,5 +21,23 @@
         <item>Tech Support</item>
         <item>Voicemail</item>
         <item>Other</item>
+    </string-array>
+    <string-array name="ScamTypesDESC">
+        <!-- taken from fcc.gov/scam-glossary -->
+        <item name="Auto Warranty">A scammer calls you with a sales pitch for renewing your auto warranty or insurance policy. The scammer may have acquired information about your car and its existing warranty to make the offer seem more credible. (From fcc.gov/scam-glossary)</item>
+        <item name="Bank">Scammers pretend to be your bank through calls, texts, or emails, often claiming there\'s suspicious activity on your account. They use urgency to trick you into sharing personal or financial information, sending money, or transferring funds to a so-called "safe" account. (From fcc.gov/scam-glossary)</item>
+        <item name="Can You Hear Me">Scammers open by asking a yes-or-no question, such as: "Can you hear me?" or "Is this X?" Their goal is to record you saying "yes" in response. They then may use that recording to authorize charges over the phone. (From fcc.gov/scam-glossary)</item>
+        <item name="Charity">Scammers call asking for charitable donations, often after large-scale disasters. They may make up phony charities or spoof a real charity to trick you out of your money. (From fcc.gov/scam-glossary)</item>
+        <item name="Discount">Scammers may try and provide a discount on a product, often too-good-to-be-true. Rather than answer, check that the discount is legit.</item>
+        <item name="Family Emergency">Scammers sometimes prey on grandparents by claiming their family members are in jail or in trouble and need money quickly. They use stolen personal information such as family member names and hometowns to seem more convincing. (From fcc.gov/scam-glossary)</item>
+        <item name="Health/Life Insurance">Scammers often pose as government entities, Medicare representatives, or insurance providers. They may offer free health screenings, gifts, lower premiums, or special enrollment deals. Their real goal is to steal personal information and money. (From fcc.gov/scam-glossary)</item>
+        <item name="Identity Theft">Callers posing as government officials, often from the Social Security Administration, claim that you\'ve been a victim of identity theft. These scammers ask for personal information or payment of some kind, or access to your bank account. (From fcc.gov/scam-glossary)</item>
+        <item name="Neighbor Spoofing">Scammers spoof caller ID information that displays the same initial digits as your own phone number (usually the first six), making it seem like someone else with a local number is trying to reach you. (From fcc.gov/scam-glossary)</item>
+        <item name="Phishing">Scammers might try and get information from people by pretending to be a company or person you know. This is a common scam tactic over text and email as well.</item>
+        <item name="Political">Around the time of elections, scam and spam calls surrounding elections tend to increase. They will try and get you to vote for a specific politician.</item>
+        <item name="Requesting Money">If you\'ve already fallen for a scam, another scammer may call you and offer to get you your money back for a fee. Their goal is to double dip and steal more of your money. (From fcc.gov/scam-glossary)</item>
+        <item name="Social Security Number">Scammers may pose as government officials, often from the Social Security Administration, to request your Social Security Number or a payment of some sort. Sometimes, they claim your SSN is suspended. The call may spoof what appears to be a legitimate Social Security Administration number. (From fcc.gov/scam-glossary)</item>
+        <item name="Tech Support">Phone scammers may masquerade as tech support employees for a major company in order to take your money or install a virus on your computer. They may call from what seem to be legitimate company numbers using caller ID spoofing. (From fcc.gov/scam-glossary)</item>
+        <item name="Voicemail">Scam callers leave voicemails threatening legal action if you don\'t call back. Our guidance is: Never call back an unfamiliar number, because it may lead to a scam. (From fcc.gov/scam-glossary)</item>
     </string-array>
 </resources>
