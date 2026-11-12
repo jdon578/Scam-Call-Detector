@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private Button scamBlockButton;
     private boolean isScamBlockOn;
     private SharedPreferences sharedPreferences;
+    private TextView informationLink;
 
 
     @Override
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         scamBlockButton = findViewById(R.id.scam_block_button);
         sharedPreferences = getSharedPreferences("scam_block_status", MODE_PRIVATE);
         isScamBlockOn = sharedPreferences.getBoolean("isScamBlockOn", false);
+        informationLink = findViewById(R.id.information_link);
 
         updatePage();
 
@@ -108,6 +111,14 @@ public class MainActivity extends AppCompatActivity {
             isScamBlockOn = !isScamBlockOn;
             sharedPreferences.edit().putBoolean("isScamBlockOn", isScamBlockOn).apply();
             updatePage();
+        });
+
+        informationLink.setPaintFlags(
+                informationLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG
+        );
+
+        informationLink.setOnClickListener(v -> {
+            switchToInfo();
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
