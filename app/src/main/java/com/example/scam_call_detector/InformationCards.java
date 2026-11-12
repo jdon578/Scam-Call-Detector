@@ -2,10 +2,12 @@ package com.example.scam_call_detector;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,12 +25,12 @@ import com.google.android.material.card.MaterialCardView;
 
 public class InformationCards extends AppCompatActivity {
 
-    ImageButton arrow;
-    ConstraintLayout constraintLayout;
+//    ImageButton arrow;
+//    ConstraintLayout constraintLayout;
     LinearLayout container;
-    LinearLayout layout;
-    LinearLayout hidden;
-    MaterialCardView card;
+//    LinearLayout layout;
+//    LinearLayout hidden;
+//    MaterialCardView card;
 
     BottomNavigationView bottomNav;
 
@@ -93,31 +95,33 @@ public class InformationCards extends AppCompatActivity {
         Resources res = getResources();
         String[] titles = res.getStringArray(R.array.ScamTypes);
         String[] descs = res.getStringArray(R.array.ScamTypesDESC);
+        container = findViewById(R.id.info_container);
 
         for(int i = 0; i < titles.length-1; i++){
-            container = findViewById(R.id.info_container);
             MaterialCardView card =
                     new MaterialCardView(
                             InformationCards.this);
-            arrow = new ImageButton(InformationCards.this);
-            hidden = new LinearLayout(InformationCards.this);
-            layout = new LinearLayout(InformationCards.this);
+
+            LinearLayout hidden = new LinearLayout(InformationCards.this);
+            LinearLayout Titlelayout = new LinearLayout(InformationCards.this);
+            ImageButton arrow = new ImageButton(InformationCards.this);
             arrow.setImageResource(R.drawable.outline_arrow_downward_alt_24);
-            constraintLayout = new ConstraintLayout(InformationCards.this);
+            LinearLayout cardContent = new LinearLayout(InformationCards.this);
+            cardContent.setOrientation(LinearLayout.VERTICAL);
 
             //constraintLayout.setMaxHeight(1000);
 
             //card.setMinimumHeight(300);
 
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setGravity(Gravity.CENTER_VERTICAL);
-            layout.setPadding(20, 20, 20, 400);
+            Titlelayout.setOrientation(LinearLayout.HORIZONTAL);
+            Titlelayout.setGravity(Gravity.CENTER_VERTICAL);
+            Titlelayout.setPadding(20, 0, 20, 0);
 
             hidden.setOrientation(LinearLayout.VERTICAL);
             hidden.setGravity(Gravity.CENTER_VERTICAL);
-            hidden.setPadding(20, 0, 20, 0);
+            hidden.setPadding(20, 0, 20, 20);
             hidden.setVisibility(MaterialCardView.GONE);
-            hidden.setY(50);
+//            hidden.setY(50);
 
             TextView title = new TextView(InformationCards.this);
             TextView desc = new TextView(InformationCards.this);
@@ -139,21 +143,32 @@ public class InformationCards extends AppCompatActivity {
                 }
             });
 
-            layout.addView(title);
-            layout.addView(arrow);
+            LinearLayout.LayoutParams titleParams =
+                    new LinearLayout.LayoutParams(
+                            0,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1
+                    );
+            title.setLayoutParams(titleParams);
+
+            Titlelayout.addView(title);
+            Titlelayout.addView(arrow);
             hidden.addView(desc);
-            card.addView(layout);
-            card.addView(hidden);
+            cardContent.addView(Titlelayout);
+            cardContent.addView(hidden);
 
             LinearLayout.LayoutParams cardParams =
                     new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT);
 
-            cardParams.setMargins(0, 0, 0, 200);
+            cardParams.setMargins(0, 0, 0, 20);
             card.setLayoutParams(cardParams);
-            constraintLayout.addView(card);
-            container.addView(constraintLayout, i);
+
+            card.addView(cardContent);
+
+            container.addView(card, i);
         }
     }
+
 }
