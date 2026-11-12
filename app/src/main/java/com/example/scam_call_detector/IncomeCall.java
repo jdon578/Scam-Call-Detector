@@ -65,6 +65,13 @@ public class IncomeCall extends CallScreeningService {
     @Override
     public void onScreenCall(Call.Details callDetails) {
 
+        sharedPreferences = getSharedPreferences("scam_block_status", MODE_PRIVATE);
+        boolean isScamBlockOn = sharedPreferences.getBoolean("isScamBlockOn", false);
+        if(!isScamBlockOn){
+            acceptCall(callDetails);
+            return;
+        }
+
         String incomeNumber = null;
 
         if (callDetails.getHandle() != null) {
@@ -221,6 +228,11 @@ public class IncomeCall extends CallScreeningService {
     }
 
     public void rejectCall(Call.Details callDetails){
+
+        sharedPreferences = getSharedPreferences("blocked_call_count", MODE_PRIVATE);
+        int blockedCallCount = sharedPreferences.getInt("blocked_call_count", 0);
+        blockedCallCount++;
+        sharedPreferences.edit().putInt("blocked_call_count", blockedCallCount).apply();
 
         Log.d("IncomeCall", "Automatic rejection triggered by IncomeCall");
 

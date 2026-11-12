@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.role.RoleManager;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -78,6 +79,13 @@ public class MainActivity extends AppCompatActivity {
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    private TextView scamBlockStatus;
+    private SharedPreferences blockedCallCount;
+    private TextView blockedCallCounts;
+    private Button scamBlockButton;
+    private boolean isScamBlockOn;
+    private SharedPreferences sharedPreferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +94,21 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        scamBlockStatus = findViewById(R.id.scam_block_status);
+        blockedCallCount = getSharedPreferences("blocked_call_count", MODE_PRIVATE);
+        blockedCallCounts = findViewById(R.id.blocked_call_count);
+        scamBlockButton = findViewById(R.id.scam_block_button);
+        sharedPreferences = getSharedPreferences("scam_block_status", MODE_PRIVATE);
+        isScamBlockOn = sharedPreferences.getBoolean("isScamBlockOn", false);
+
+        updatePage();
+
+        scamBlockButton.setOnClickListener(v -> {
+            isScamBlockOn = !isScamBlockOn;
+            sharedPreferences.edit().putBoolean("isScamBlockOn", isScamBlockOn).apply();
+            updatePage();
+        });
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -141,34 +164,45 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
-
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshScreen();
-            }
-        });
+//        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+//
+//        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+//            @Override
+//            public void onRefresh() {
+//                refreshScreen();
+//            }
+//        });
 
         db = FirebaseFirestore.getInstance();
         //getAllNumbers();
-        getCallLogs();
+//        getCallLogs();
         requestCallScreeningRole();
         requestPermissions();
         requestOverlayPermission();
     }
 
-    private void refreshScreen() {
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable(){
-            @Override
-            public void run() {
-                getCallLogs();
-                Toast.makeText(MainActivity.this, "Refreshed", Toast.LENGTH_LONG).show();
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }, 3000);
-    }
+//    private void refreshScreen() {
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable(){
+//            @Override
+//            public void run() {
+//                getCallLogs();
+//                Toast.makeText(MainActivity.this, "Refreshed", Toast.LENGTH_LONG).show();
+//                swipeRefreshLayout.setRefreshing(false);
+//            }
+//        }, 3000);
+//    }
 
+    private void updatePage(){
+        blockedCallCounts.setText(String.valueOf(blockedCallCount.getInt("blocked_call_count", 0)) + " scam calls blocked");
+        if(isScamBlockOn){
+            scamBlockStatus.setText("SCAM BLOCK IS ON");
+            scamBlockButton.setText("TURN OFF");
+        }
+        else{
+            scamBlockStatus.setText("SCAM BLOCK IS OFF");
+            scamBlockButton.setText("TURN ON");
+        }
+    }
     private void switchActivities(){
         Intent switchActivityIntent = new Intent(this, ReportPhoneNumber.class);
         startActivity(switchActivityIntent);
@@ -308,205 +342,205 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void getCallLogs(){
-        Uri callUri = CallLog.Calls.CONTENT_URI;
-
-        String[] callLogs = {
-                CallLog.Calls.NUMBER,
-                CallLog.Calls.TYPE,
-                CallLog.Calls.DATE,
-                CallLog.Calls.DURATION
-        };
-
-        ContentResolver contentResolver = getContentResolver();
-
-        LinearLayout container = findViewById(R.id.call_log_container);
-        container.removeAllViews();
-
-        try (Cursor cursor = contentResolver.query(callUri, callLogs, null, null, null)){
-            if (cursor == null){
-                Log.e(TAG, "Cursor is null");
-                return;
-            }
-            int numberID = cursor.getColumnIndex(CallLog.Calls.NUMBER);
-            int typeID = cursor.getColumnIndex(CallLog.Calls.TYPE);
-            int dateID = cursor.getColumnIndex(CallLog.Calls.DATE);
-            int durationID = cursor.getColumnIndex(CallLog.Calls.DURATION);
-
-            while(cursor.moveToNext()){
-                String phoneNumber = cursor.getString(numberID);
-                String callType = cursor.getString(typeID);
-                String callDate = cursor.getString(dateID);
-                String callDuration = cursor.getString(durationID);
-
-                Date callDayTime = new Date(Long.parseLong(callDate));
-                LocalDateTime dateTime = callDayTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                DateTimeFormatter callDayTimeFormatted = DateTimeFormatter.ofPattern("MM-dd-yyyy hh:mm a");
-                String finalCallDate = dateTime.format(callDayTimeFormatted);
-
-                int durINT = Integer.parseInt(callDuration);
-                int hour = 0;
-                int min = 0;
-                int sec = 0;
-                if(durINT > 3600){
-                    hour = durINT/3600;
-                    durINT = durINT-(3600*hour);
-                }
-                if(durINT > 60){
-                    min = durINT/60;
-                    durINT = durINT-(60*min);
-                }
-                sec = durINT;
-
-                String dir = "UNKNOWN";
-                int dircode = Integer.parseInt(callType);
-                switch (dircode) {
-                    case CallLog.Calls.OUTGOING_TYPE:
-                        dir = "OUTGOING";
-                        break;
-                    case CallLog.Calls.INCOMING_TYPE:
-                        dir = "INCOMING";
-                        break;
-                    case CallLog.Calls.MISSED_TYPE:
-                        dir = "MISSED";
-                        break;
-                    case CallLog.Calls.REJECTED_TYPE:
-                        dir = "REJECTED";
-                        break;
-                }
-
-                MaterialCardView card =
-                        new MaterialCardView(
-                                MainActivity.this);
-                LinearLayout layout =
-                        new LinearLayout(MainActivity.this);
-
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setGravity(Gravity.CENTER_VERTICAL);
-                layout.setPadding(20, 20, 20, 20);
-
-                // get verified phone numbers
-                db = FirebaseFirestore.getInstance();
-
-                Map<String, Object> phone_numbers = new HashMap<>();
-                phone_numbers.put("phoneNumber", phoneNumber);
-
-                db.collection("incoming_calls")
-                        .document()
-                        .set(phone_numbers);
-
-                TextView phoneText = new TextView(MainActivity.this);
-                phoneText.setText(phoneNumber);
-                phoneText.setTextSize(18);
-
-                TextView typeText = new TextView(MainActivity.this);
-                typeText.setText("Type: " + dir);
-                typeText.setTextSize(18);
-
-                TextView dateText  = new TextView(MainActivity.this);
-                dateText.setText("Date: " + finalCallDate);
-                dateText.setTextSize(18);
-
-                TextView durationText  = new TextView(MainActivity.this);
-                @SuppressLint("DefaultLocale") String formatDuration = String.format("%02d:%02d:%02d", hour, min, sec);
-                durationText.setText("Duration: " + formatDuration);
-                durationText.setTextSize(18);
-
-                layout.addView(phoneText);
-                TextView nameText = new TextView(MainActivity.this);
-                String name = getContact(phoneNumber);
-                if(name != null){
-                    nameText.setText(name);
-                    nameText.setTextSize(18);
-                    layout.addView(nameText);
-                }
-                layout.addView(typeText);
-                layout.addView(dateText);
-                layout.addView(durationText);
-
-                db.collection("verified_numbers")
-                        .whereEqualTo("phoneNumber", phoneNumber)
-                        .get()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                if(!task.getResult().isEmpty()){
-                                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
-                                    String scamType;
-                                    scamType = document.getString("scamType");
-
-                                    TextView scamText = new TextView(MainActivity.this);
-                                    Button goToReport = new Button(MainActivity.this);
-                                    if(scamType != null){
-                                        scamText.setText("Scam Type: " + scamType);
-                                        scamText.setTextSize(18);
-                                        goToReport.setText("Report");
-                                        goToReport.setTextSize(16);
-                                        goToReport.setOnClickListener(v -> switchToReportAuto(phoneNumber));
-                                        layout.addView(scamText);
-                                        layout.addView(goToReport);
-                                    }
-
-                                    Log.d("IncomeCall", "Scam number found");
-                                    Log.d("IncomeCall", "Scam type: " + scamType);
-
-                                } else {
-                                    Log.d("IncomeCall", "Number not found:");
-                                }
-                            }
-                            else {
-                                Log.d("IncomeCall", "Error getting documents: ", task.getException());
-                            }
-                        });
-
-                card.addView(layout);
-
-                LinearLayout.LayoutParams cardParams =
-                        new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT);
-
-                cardParams.setMargins(0, 0, 0, 25);
-                card.setLayoutParams(cardParams);
-                container.addView(card, 0);
-            }
-        } catch (Exception e){
-            Log.e(TAG, "Error getting call logs", e);
-        }
-    }
-
-    @SuppressLint("Range")
-    public String getContact(String phoneNumber) {
-        phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
-        String number = "";
-        String name = "";
-        ContentResolver cr = getContentResolver();
-        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null,
-                null, null);
-        if (cur.getCount() > 0) {
-            while (cur.moveToNext()) {
-                @SuppressLint("Range") String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
-
-                if (Integer.parseInt(cur.getString(
-                        cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                    Cursor nCur = cr.query(
-                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                            null,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                            new String[]{id}, null);
-
-                    // retrieve other numbers for the same contact
-                    while (nCur.moveToNext()) {
-                        number = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[^0-9]", "");
-                        name = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                        if(number.equals(phoneNumber)){
-                            nCur.close();
-                            return name;
-                        }
-                    }
-                    nCur.close();
-                }
-            }
-        }
-        return null;
-    }
+//    public void getCallLogs(){
+//        Uri callUri = CallLog.Calls.CONTENT_URI;
+//
+//        String[] callLogs = {
+//                CallLog.Calls.NUMBER,
+//                CallLog.Calls.TYPE,
+//                CallLog.Calls.DATE,
+//                CallLog.Calls.DURATION
+//        };
+//
+//        ContentResolver contentResolver = getContentResolver();
+//
+//        LinearLayout container = findViewById(R.id.call_log_container);
+//        container.removeAllViews();
+//
+//        try (Cursor cursor = contentResolver.query(callUri, callLogs, null, null, null)){
+//            if (cursor == null){
+//                Log.e(TAG, "Cursor is null");
+//                return;
+//            }
+//            int numberID = cursor.getColumnIndex(CallLog.Calls.NUMBER);
+//            int typeID = cursor.getColumnIndex(CallLog.Calls.TYPE);
+//            int dateID = cursor.getColumnIndex(CallLog.Calls.DATE);
+//            int durationID = cursor.getColumnIndex(CallLog.Calls.DURATION);
+//
+//            while(cursor.moveToNext()){
+//                String phoneNumber = cursor.getString(numberID);
+//                String callType = cursor.getString(typeID);
+//                String callDate = cursor.getString(dateID);
+//                String callDuration = cursor.getString(durationID);
+//
+//                Date callDayTime = new Date(Long.parseLong(callDate));
+//                LocalDateTime dateTime = callDayTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+//                DateTimeFormatter callDayTimeFormatted = DateTimeFormatter.ofPattern("MM-dd-yyyy hh:mm a");
+//                String finalCallDate = dateTime.format(callDayTimeFormatted);
+//
+//                int durINT = Integer.parseInt(callDuration);
+//                int hour = 0;
+//                int min = 0;
+//                int sec = 0;
+//                if(durINT > 3600){
+//                    hour = durINT/3600;
+//                    durINT = durINT-(3600*hour);
+//                }
+//                if(durINT > 60){
+//                    min = durINT/60;
+//                    durINT = durINT-(60*min);
+//                }
+//                sec = durINT;
+//
+//                String dir = "UNKNOWN";
+//                int dircode = Integer.parseInt(callType);
+//                switch (dircode) {
+//                    case CallLog.Calls.OUTGOING_TYPE:
+//                        dir = "OUTGOING";
+//                        break;
+//                    case CallLog.Calls.INCOMING_TYPE:
+//                        dir = "INCOMING";
+//                        break;
+//                    case CallLog.Calls.MISSED_TYPE:
+//                        dir = "MISSED";
+//                        break;
+//                    case CallLog.Calls.REJECTED_TYPE:
+//                        dir = "REJECTED";
+//                        break;
+//                }
+//
+//                MaterialCardView card =
+//                        new MaterialCardView(
+//                                MainActivity.this);
+//                LinearLayout layout =
+//                        new LinearLayout(MainActivity.this);
+//
+//                layout.setOrientation(LinearLayout.VERTICAL);
+//                layout.setGravity(Gravity.CENTER_VERTICAL);
+//                layout.setPadding(20, 20, 20, 20);
+//
+//                // get verified phone numbers
+//                db = FirebaseFirestore.getInstance();
+//
+//                Map<String, Object> phone_numbers = new HashMap<>();
+//                phone_numbers.put("phoneNumber", phoneNumber);
+//
+//                db.collection("incoming_calls")
+//                        .document()
+//                        .set(phone_numbers);
+//
+//                TextView phoneText = new TextView(MainActivity.this);
+//                phoneText.setText(phoneNumber);
+//                phoneText.setTextSize(18);
+//
+//                TextView typeText = new TextView(MainActivity.this);
+//                typeText.setText("Type: " + dir);
+//                typeText.setTextSize(18);
+//
+//                TextView dateText  = new TextView(MainActivity.this);
+//                dateText.setText("Date: " + finalCallDate);
+//                dateText.setTextSize(18);
+//
+//                TextView durationText  = new TextView(MainActivity.this);
+//                @SuppressLint("DefaultLocale") String formatDuration = String.format("%02d:%02d:%02d", hour, min, sec);
+//                durationText.setText("Duration: " + formatDuration);
+//                durationText.setTextSize(18);
+//
+//                layout.addView(phoneText);
+//                TextView nameText = new TextView(MainActivity.this);
+//                String name = getContact(phoneNumber);
+//                if(name != null){
+//                    nameText.setText(name);
+//                    nameText.setTextSize(18);
+//                    layout.addView(nameText);
+//                }
+//                layout.addView(typeText);
+//                layout.addView(dateText);
+//                layout.addView(durationText);
+//
+//                db.collection("verified_numbers")
+//                        .whereEqualTo("phoneNumber", phoneNumber)
+//                        .get()
+//                        .addOnCompleteListener(task -> {
+//                            if (task.isSuccessful()) {
+//                                if(!task.getResult().isEmpty()){
+//                                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
+//                                    String scamType;
+//                                    scamType = document.getString("scamType");
+//
+//                                    TextView scamText = new TextView(MainActivity.this);
+//                                    Button goToReport = new Button(MainActivity.this);
+//                                    if(scamType != null){
+//                                        scamText.setText("Scam Type: " + scamType);
+//                                        scamText.setTextSize(18);
+//                                        goToReport.setText("Report");
+//                                        goToReport.setTextSize(16);
+//                                        goToReport.setOnClickListener(v -> switchToReportAuto(phoneNumber));
+//                                        layout.addView(scamText);
+//                                        layout.addView(goToReport);
+//                                    }
+//
+//                                    Log.d("IncomeCall", "Scam number found");
+//                                    Log.d("IncomeCall", "Scam type: " + scamType);
+//
+//                                } else {
+//                                    Log.d("IncomeCall", "Number not found:");
+//                                }
+//                            }
+//                            else {
+//                                Log.d("IncomeCall", "Error getting documents: ", task.getException());
+//                            }
+//                        });
+//
+//                card.addView(layout);
+//
+//                LinearLayout.LayoutParams cardParams =
+//                        new LinearLayout.LayoutParams(
+//                                LinearLayout.LayoutParams.MATCH_PARENT,
+//                                LinearLayout.LayoutParams.WRAP_CONTENT);
+//
+//                cardParams.setMargins(0, 0, 0, 25);
+//                card.setLayoutParams(cardParams);
+//                container.addView(card, 0);
+//            }
+//        } catch (Exception e){
+//            Log.e(TAG, "Error getting call logs", e);
+//        }
+//    }
+//
+//    @SuppressLint("Range")
+//    public String getContact(String phoneNumber) {
+//        phoneNumber = phoneNumber.replaceAll("[^0-9]", "");
+//        String number = "";
+//        String name = "";
+//        ContentResolver cr = getContentResolver();
+//        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null,
+//                null, null);
+//        if (cur.getCount() > 0) {
+//            while (cur.moveToNext()) {
+//                @SuppressLint("Range") String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+//
+//                if (Integer.parseInt(cur.getString(
+//                        cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+//                    Cursor nCur = cr.query(
+//                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+//                            null,
+//                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+//                            new String[]{id}, null);
+//
+//                    // retrieve other numbers for the same contact
+//                    while (nCur.moveToNext()) {
+//                        number = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[^0-9]", "");
+//                        name = nCur.getString(nCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+//                        if(number.equals(phoneNumber)){
+//                            nCur.close();
+//                            return name;
+//                        }
+//                    }
+//                    nCur.close();
+//                }
+//            }
+//        }
+//        return null;
+//    }
 }
