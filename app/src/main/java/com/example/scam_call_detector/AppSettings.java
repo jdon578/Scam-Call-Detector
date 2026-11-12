@@ -63,7 +63,9 @@ public class AppSettings extends AppCompatActivity {
         /*findViewById(R.id.voicemail_button).setOnClickListener(
                 v -> voicemails()
         );*/
-
+        findViewById(R.id.call_log).setOnClickListener(
+                v -> callLog()
+        );
     }
 
     private void scamNumbers(){
@@ -74,6 +76,11 @@ public class AppSettings extends AppCompatActivity {
     private void contactFilter(){
         Intent contactsIntent = new Intent(this, ContactFilter.class);
         startActivity(contactsIntent);
+    }
+
+    private void callLog(){
+        Intent callLogIntent = new Intent(this, CallLogActivity.class);
+        startActivity(callLogIntent);
     }
 
     private void contactAdmin(){
