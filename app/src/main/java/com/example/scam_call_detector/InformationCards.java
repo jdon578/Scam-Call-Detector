@@ -70,66 +70,7 @@ public class InformationCards extends AppCompatActivity {
             return false;
         });
 
-        container = findViewById(R.id.info_container);
-        MaterialCardView card =
-                new MaterialCardView(
-                        InformationCards.this);
-        arrow = new ImageButton(InformationCards.this);
-        hidden = new LinearLayout(InformationCards.this);
-        layout = new LinearLayout(InformationCards.this);
-        arrow.setImageResource(R.drawable.outline_arrow_downward_alt_24);
-        constraintLayout = new ConstraintLayout(InformationCards.this);
-
-        constraintLayout.setMaxHeight(300);
-
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setGravity(Gravity.CENTER_VERTICAL);
-        layout.setPadding(20, 20, 20, 20);
-
-        hidden.setOrientation(LinearLayout.VERTICAL);
-        hidden.setGravity(Gravity.CENTER_VERTICAL);
-        hidden.setPadding(20, 20, 20, 20);
-        hidden.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
-        hidden.setVisibility(MaterialCardView.GONE);
-
-
-        TextView title = new TextView(InformationCards.this);
-        TextView desc = new TextView(InformationCards.this);
-        title.setText("test");
-        title.setTextSize(18);
-        desc.setText("test 2");
-        desc.setTextSize(16);
-        layout.addView(title);
-        layout.addView(arrow);
-        hidden.addView(desc);
-        card.addView(layout);
-        card.addView(hidden);
-
-        LinearLayout.LayoutParams cardParams =
-                new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        cardParams.setMargins(0, 0, 0, 25);
-        card.setLayoutParams(cardParams);
-        constraintLayout.addView(card);
-        container.addView(constraintLayout, 0);
-
-        //populateList();
-
-        arrow.setOnClickListener(view -> {
-            if(hidden.getVisibility() == MaterialCardView.VISIBLE){
-                TransitionManager.beginDelayedTransition(card, new AutoTransition());
-                hidden.setVisibility(MaterialCardView.GONE);
-                arrow.setImageResource(R.drawable.outline_arrow_downward_alt_24);
-            } else {
-                TransitionManager.beginDelayedTransition(card, new AutoTransition());
-                hidden.setVisibility(MaterialCardView.VISIBLE);
-                arrow.setImageResource(R.drawable.outline_arrow_upward_alt_24);
-            }
-        });
+        populateList();
 
     }
 
@@ -150,41 +91,69 @@ public class InformationCards extends AppCompatActivity {
 
     public void populateList(){
         Resources res = getResources();
-        container = findViewById(R.id.info_container);
-        MaterialCardView card =
-                new MaterialCardView(
-                        InformationCards.this);
-        arrow = new ImageButton(InformationCards.this);
-        hidden = new LinearLayout(InformationCards.this);
-        layout = new LinearLayout(InformationCards.this);
-
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setGravity(Gravity.CENTER_VERTICAL);
-        layout.setPadding(20, 20, 20, 20);
-
         String[] titles = res.getStringArray(R.array.ScamTypes);
         String[] descs = res.getStringArray(R.array.ScamTypesDESC);
 
-        for(int i = 0; i < titles.length; i++){
+        for(int i = 0; i < titles.length-1; i++){
+            container = findViewById(R.id.info_container);
+            MaterialCardView card =
+                    new MaterialCardView(
+                            InformationCards.this);
+            arrow = new ImageButton(InformationCards.this);
+            hidden = new LinearLayout(InformationCards.this);
+            layout = new LinearLayout(InformationCards.this);
+            arrow.setImageResource(R.drawable.outline_arrow_downward_alt_24);
+            constraintLayout = new ConstraintLayout(InformationCards.this);
+
+            //constraintLayout.setMaxHeight(1000);
+
+            //card.setMinimumHeight(300);
+
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setGravity(Gravity.CENTER_VERTICAL);
+            layout.setPadding(20, 20, 20, 400);
+
+            hidden.setOrientation(LinearLayout.VERTICAL);
+            hidden.setGravity(Gravity.CENTER_VERTICAL);
+            hidden.setPadding(20, 0, 20, 0);
+            hidden.setVisibility(MaterialCardView.GONE);
+            hidden.setY(50);
+
             TextView title = new TextView(InformationCards.this);
             TextView desc = new TextView(InformationCards.this);
             title.setText(titles[i]);
             title.setTextSize(18);
             desc.setText(descs[i]);
             desc.setTextSize(16);
+
+            // currently -- when clicking, only activates last card?
+            arrow.setOnClickListener(view -> {
+                if(hidden.getVisibility() == MaterialCardView.VISIBLE){
+                    TransitionManager.beginDelayedTransition(card, new AutoTransition());
+                    hidden.setVisibility(MaterialCardView.GONE);
+                    arrow.setImageResource(R.drawable.outline_arrow_downward_alt_24);
+                } else {
+                    TransitionManager.beginDelayedTransition(card, new AutoTransition());
+                    hidden.setVisibility(MaterialCardView.VISIBLE);
+                    arrow.setImageResource(R.drawable.outline_arrow_upward_alt_24);
+                }
+            });
+
             layout.addView(title);
             layout.addView(arrow);
             hidden.addView(desc);
             card.addView(layout);
+            card.addView(hidden);
 
             LinearLayout.LayoutParams cardParams =
                     new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT);
 
-            cardParams.setMargins(0, 0, 0, 25);
+            cardParams.setMargins(0, 0, 0, 200);
             card.setLayoutParams(cardParams);
-            container.addView(card, 0);
+            constraintLayout.addView(card);
+            container.addView(constraintLayout, i);
         }
     }
 }
