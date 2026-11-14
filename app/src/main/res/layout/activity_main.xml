@@ -8,11 +8,14 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
+    <include layout="@layout/nav_bars" />
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:fitsSystemWindows="true"
+        android:visibility="gone">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -75,11 +78,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="want to know what to look out for?"
-            android:textSize="15sp"
-            android:textColor="#6750A4"
+            android:background="@drawable/link_background_selector"
             android:clickable="true"
-            android:focusable="true" />
+            android:focusable="true"
+            android:text="Want to know what to look out for?"
+            android:textColor="#6750A4"
+            android:textSize="15sp" />
 
     </LinearLayout>
 
@@ -97,6 +101,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:visibility="gone"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_scam_call" />
 

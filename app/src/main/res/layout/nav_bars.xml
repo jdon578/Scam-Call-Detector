@@ -33,4 +33,18 @@
         app:layout_constraintVertical_bias="1.0"
         app:menu="@menu/menu_scam_call" />
 
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="304dp"
+        android:layout_height="51dp"
+        android:text="Scam Call Detector"
+        android:textColor="@color/white"
+        android:textSize="34sp"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.136"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.888" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,8 +17,10 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.313">
 
         <TextView
             android:id="@+id/information_title"
@@ -32,7 +34,7 @@
 
         <ScrollView
             android:layout_width="364dp"
-            android:layout_height="625dp"
+            android:layout_height="520dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="20dp"
             android:layout_weight="1">

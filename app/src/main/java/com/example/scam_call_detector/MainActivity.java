@@ -240,12 +240,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(settingsIntent);
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -295,9 +295,9 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
             startActivity(intent);
-        } else {
-            Toast.makeText(this, "Overlay permission is already granted", Toast.LENGTH_SHORT).show();
-        }
+        } //else {
+            //Toast.makeText(this, "Overlay permission is already granted", Toast.LENGTH_SHORT).show();
+        //}
     }
 
 
@@ -324,9 +324,9 @@ public class MainActivity extends AppCompatActivity {
                     permissionsToRequest.toArray(new String[0]),
                     PERMISSION_REQUEST_CODE
             );
-        } else {
-            Toast.makeText(this, "All permissions already granted", Toast.LENGTH_SHORT).show();
-        }
+        } //else {
+            //Toast.makeText(this, "All permissions already granted", Toast.LENGTH_SHORT).show();
+        //}
     }
 
     @Override
