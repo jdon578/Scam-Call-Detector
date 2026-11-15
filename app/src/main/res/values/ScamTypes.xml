@@ -20,7 +20,7 @@
         <item>Social Security Number</item>
         <item>Tech Support</item>
         <item>Voicemail</item>
-        <item>Other</item>
+<!--        <item>Other</item>-->
     </string-array>
     <string-array name="ScamTypesDESC">
         <!-- taken from fcc.gov/scam-glossary -->
@@ -40,4 +40,127 @@
         <item name="Tech Support">Phone scammers may masquerade as tech support employees for a major company in order to take your money or install a virus on your computer. They may call from what seem to be legitimate company numbers using caller ID spoofing. (From fcc.gov/scam-glossary)</item>
         <item name="Voicemail">Scam callers leave voicemails threatening legal action if you don\'t call back. Our guidance is: Never call back an unfamiliar number, because it may lead to a scam. (From fcc.gov/scam-glossary)</item>
     </string-array>
+
+    <string-array name="protection">
+        <item>How To Recognize a Phone Scam</item>
+        <item>Examples of Common Phone Scams</item>
+        <item>How To Stop Calls From Scammers</item>
+        <item>What To Do If You Already Paid a Scammer</item>
+        <item>Report Phone Scams</item>
+
+    </string-array>
+
+    <string-array name="protectionDESC">
+        <!-- taken from fcc.gov/scam-glossary -->
+        <item name="How To Recognize a Phone Scam">
+            &lt;b&gt;There is no prize&lt;/b&gt; &lt;br/&gt;
+	Be careful if someone tells you that you won a prize but asks you to pay a fee to receive it.&lt;br/&gt;&lt;br/&gt;
+&lt;b&gt;You won\’t be arrested&lt;/b&gt;&lt;br/&gt;
+	Scammers may pretend to be law enforcement and threaten to arrest you unless you pay immediately.&lt;br/&gt;&lt;br/&gt;
+
+&lt;b&gt;You don\’t need to decide now&lt;/b&gt;&lt;br/&gt;
+Be suspicious of callers who pressure you to make an immediate decision. Take your time to verify their claims.&lt;br/&gt;&lt;br/&gt;
+
+&lt;b&gt;Only scammers demand you pay certain ways&lt;/b&gt;&lt;br/&gt;
+Scammers will often insist you pay in a way that makes it hard to get your money back — by wire transfer , gift card, cryptocurrency, or payment app. Anyone who insists that you can only pay that way is a scammer.&lt;br/&gt;&lt;br/&gt;
+
+&lt;b&gt;Government agencies won\’t call to confirm your sensitive information&lt;/b&gt;&lt;br/&gt;
+Don\'t share your Social Security number or other sensitive information with unexpected callers claiming to represent government agencies.&lt;br/&gt;&lt;br/&gt;
+
+&lt;b&gt;You shouldn’t be getting all those calls&lt;/b&gt;&lt;br/&gt;
+            Be cautious of unwanted sales calls and illegal robocalls. They may be scams. &lt;br/&gt;&lt;br/&gt;
+        (From fcc.gov/phone scam)</item>
+
+        <item name="Examples of Common Phone Scams">
+            &lt;b&gt;Impersonator Scams&lt;/b&gt;&lt;br/&gt;
+    Scammers pretend to be government officials, family members, or trusted businesses. They may use fake names or caller IDs to appear legitimate. Always verify their identity before sharing information or sending money.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Debt Relief and Credit Repair Scams&lt;/b&gt;&lt;br/&gt;
+    Scammers promise to lower your interest rates, fix your credit, or forgive student loans in exchange for an upfront fee. Be cautious of these promises and research the company first.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Business and Investment Scams&lt;/b&gt;&lt;br/&gt;
+    Scammers promise business opportunities or guaranteed investment profits, including cryptocurrency returns. Be suspicious of guaranteed profits and research investments before paying.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Charity Scams&lt;/b&gt;&lt;br/&gt;
+    Scammers pretend to represent real charities and ask for donations, often after disasters. Check the charity before donating, and never feel pressured to give immediately.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Extended Car Warranty Scams&lt;/b&gt;&lt;br/&gt;
+    Scammers use information about your car to sell overpriced or fake extended warranties. Research the company and contract before making a payment.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Free Trial Scams&lt;/b&gt;&lt;br/&gt;
+    Scammers offer free trials but may enroll you in recurring payments. Read the terms carefully and check your billing statements for unexpected charges.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Loan Scams&lt;/b&gt;&lt;br/&gt;
+    Scammers promise guaranteed loans or credit cards but demand an upfront fee. Be careful because legitimate lenders generally do not guarantee approval in this way.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Prize and Lottery Scams&lt;/b&gt;&lt;br/&gt;
+    Scammers claim you have won a prize but ask you to pay taxes or fees to receive it. Remember, you should not have to pay to collect a prize.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Travel and Timeshare Scams&lt;/b&gt;&lt;br/&gt;
+    Scammers offer free or cheap vacations but demand fees upfront. Others promise to sell your timeshare for a fee but may never find a buyer. Research the company before paying.&lt;br/&gt;&lt;br/&gt;
+            (From fcc.gov/phone scam)</item>
+
+        <item name="How To Stop Calls From Scammers">
+    &lt;b&gt;Hang Up&lt;/b&gt;&lt;br/&gt;
+    If you receive a suspicious call or robocall, hang up. Do not press any numbers to speak to an operator or remove yourself from the call list, as this may lead to more unwanted calls.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Use Call Blocking&lt;/b&gt;&lt;br/&gt;
+    Call-blocking and call-labeling services can help reduce unwanted calls. Check what services your phone carrier offers or look for trusted call-blocking apps.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Do Not Trust Caller ID&lt;/b&gt;&lt;br/&gt;
+    Scammers can fake the name or number displayed on your caller ID. Even if a call appears to come from a government agency or a local number, it could be a scam. Verify the caller before sharing personal information.&lt;br/&gt;&lt;br/&gt;
+            (From fcc.gov/phone scam)
+        </item>
+        <item name="What To Do If You Already Paid a Scammer">
+    &lt;b&gt;Stop Sending Money&lt;/b&gt;&lt;br/&gt;
+    Scammers may ask you to pay using gift cards, cryptocurrency, payment apps, or wire transfers. These payment methods can be difficult to reverse. Never send more money if someone pressures you to pay this way.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Contact Your Bank or Payment Provider&lt;/b&gt;&lt;br/&gt;
+    If you already paid, contact your bank, credit card company, gift card provider, or payment app immediately. Report the transaction as fraudulent and ask if the payment can be reversed or refunded.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Keep Your Payment Records&lt;/b&gt;&lt;br/&gt;
+    Save receipts, transaction details, messages, and other evidence. These records may help when reporting the scam and requesting a refund.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Protect Your Personal Information&lt;/b&gt;&lt;br/&gt;
+    If you shared your Social Security number, visit IdentityTheft.gov for guidance. If you shared your password, change it immediately and update it on other accounts where you used the same password.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Watch Out for Recovery Scams&lt;/b&gt;&lt;br/&gt;
+    Be careful of people who promise to recover your lost money for a fee. They may be scammers trying to steal even more money or personal information.&lt;br/&gt;&lt;br/&gt;
+            (From fcc.gov/phone scam)
+        </item>
+        <item name="Report Phone Scams">
+            &lt;b&gt;Report Scams That Caused Financial Loss&lt;/b&gt;&lt;br/&gt;
+    If you lost money or have information about a phone scammer, report it to the FTC at ReportFraud.ftc.gov.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Report Unwanted Calls&lt;/b&gt;&lt;br/&gt;
+    If you received a suspicious or unwanted call but did not lose money, report it at DoNotCall.gov.&lt;br/&gt;&lt;br/&gt;
+
+    &lt;b&gt;Provide Call Details&lt;/b&gt;&lt;br/&gt;
+    Include the caller\'s phone number, the number displayed on your caller ID, the date and time of the call, and any callback number provided. This information helps the FTC track scammers and supports call-blocking efforts.&lt;br/&gt;&lt;br/&gt;
+            (From fcc.gov/phone scam)
+        </item>
+    </string-array>
+
+    <string-array name="Resources">
+        <item>FTC – ReportFraud</item>
+        <item>National Do Not Call Registry</item>
+        <item>IdentityTheft.gov</item>
+        <item>FCC – Consumer Information</item>
+
+    </string-array>
+
+    <string-array name="ResourcesURL">
+        <item>https://reportfraud.ftc.gov/</item>
+        <item>https://www.donotcall.gov/</item>
+        <item>https://www.identitytheft.gov/</item>
+        <item>https://consumercomplaints.fcc.gov/hc/en-us/articles/115002234203-Unwanted-Calls-Texts-Phone</item>
+    </string-array>
+
+    <string-array name="ResourcesDESC">
+        <!-- taken from fcc.gov/scam-glossary -->
+        <item name="FTC – ReportFraud">Report phone scams, fraud, and suspicious business activities to the Federal Trade Commission.&lt;br/&gt;</item>
+        <item name="National Do Not Call Registry"> Register your phone number to reduce unwanted telemarketing calls. However, this registry cannot stop all scam calls.&lt;br/&gt;</item>
+        <item name="IdentityTheft.gov">Report identity theft and get a personalized recovery plan to protect your personal information.&lt;br/&gt;</item>
+        <item name="FCC – Consumer Information">Learn about unwanted calls, robocalls, caller ID spoofing, and how to file a complaint with the Federal Communications Commission.&lt;br/&gt;</item>
+            </string-array>
 </resources>

@@ -3,11 +3,15 @@ package com.example.scam_call_detector;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -72,7 +76,7 @@ public class InformationCards extends AppCompatActivity {
             return false;
         });
 
-        populateList();
+        populate();
 
     }
 
@@ -91,48 +95,102 @@ public class InformationCards extends AppCompatActivity {
         startActivity(settingsIntent);
     }
 
-    public void populateList(){
+    public void populate(){
+        populateList(R.array.ScamTypes, R.array.ScamTypesDESC,"Scam Types",false);
+        populateList(R.array.protection, R.array.protectionDESC,"How to protect yourself from a scam?",false);
+        populateList(R.array.Resources, R.array.ResourcesDESC,"Useful Resources",true);
+    }
+    public void populateList(int Title, int Desc,String sectionTitleText, boolean showButton){
         Resources res = getResources();
-        String[] titles = res.getStringArray(R.array.ScamTypes);
-        String[] descs = res.getStringArray(R.array.ScamTypesDESC);
+        String[] titles = res.getStringArray(Title);
+        String[] descs = res.getStringArray(Desc);
+        String[] urls = res.getStringArray(R.array.ResourcesURL);
         container = findViewById(R.id.info_container);
 
-        for(int i = 0; i < titles.length-1; i++){
-            MaterialCardView card =
-                    new MaterialCardView(
-                            InformationCards.this);
+        MaterialCardView card =
+                new MaterialCardView(
+                        InformationCards.this);
+
+        //first layer
+        LinearLayout cardContent = new LinearLayout(InformationCards.this);
+        cardContent.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout hiddenSection = new LinearLayout(InformationCards.this);
+        LinearLayout TitlelayoutSection = new LinearLayout(InformationCards.this);
+        ImageButton Sectionarrow = new ImageButton(InformationCards.this);
+        Sectionarrow.setImageResource(R.drawable.outline_arrow_downward_alt_24);
+
+        TitlelayoutSection.setOrientation(LinearLayout.HORIZONTAL);
+        TitlelayoutSection.setGravity(Gravity.CENTER_VERTICAL);
+        TitlelayoutSection.setPadding(20, 0, 20, 0);
+
+        hiddenSection.setOrientation(LinearLayout.VERTICAL);
+        hiddenSection.setGravity(Gravity.CENTER_VERTICAL);
+        hiddenSection.setPadding(20, 0, 20, 20);
+        hiddenSection.setVisibility(MaterialCardView.GONE);
+
+        TextView sectionTitle = new TextView(InformationCards.this);
+        sectionTitle.setText(sectionTitleText);
+        sectionTitle.setTextSize(20);
+
+        Sectionarrow.setOnClickListener(view -> {
+            if (hiddenSection.getVisibility() == MaterialCardView.VISIBLE) {
+                TransitionManager.beginDelayedTransition(card, new AutoTransition());
+                hiddenSection.setVisibility(MaterialCardView.GONE);
+                Sectionarrow.setImageResource(R.drawable.outline_arrow_downward_alt_24);
+            } else {
+                TransitionManager.beginDelayedTransition(card, new AutoTransition());
+                hiddenSection.setVisibility(MaterialCardView.VISIBLE);
+                Sectionarrow.setImageResource(R.drawable.outline_arrow_upward_alt_24);
+            }
+        });
+
+        LinearLayout.LayoutParams sectionTitleParams =
+                new LinearLayout.LayoutParams(
+                        0,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        1
+                );
+        sectionTitle.setLayoutParams(sectionTitleParams);
+
+        TitlelayoutSection.addView(sectionTitle);
+        TitlelayoutSection.addView(Sectionarrow);
+
+        //section layer
+        for(int i = 0; i < titles.length; i++) {
+//            MaterialCardView card =
+//                    new MaterialCardView(
+//                            InformationCards.this);
+            final int index = i;
 
             LinearLayout hidden = new LinearLayout(InformationCards.this);
             LinearLayout Titlelayout = new LinearLayout(InformationCards.this);
             ImageButton arrow = new ImageButton(InformationCards.this);
             arrow.setImageResource(R.drawable.outline_arrow_downward_alt_24);
-            LinearLayout cardContent = new LinearLayout(InformationCards.this);
-            cardContent.setOrientation(LinearLayout.VERTICAL);
-
-            //constraintLayout.setMaxHeight(1000);
-
-            //card.setMinimumHeight(300);
 
             Titlelayout.setOrientation(LinearLayout.HORIZONTAL);
             Titlelayout.setGravity(Gravity.CENTER_VERTICAL);
             Titlelayout.setPadding(20, 0, 20, 0);
 
+//            if(i % 2 == 0){
+//                Titlelayout.setBackgroundColor(Color.parseColor("#CE93D8"));
+//            }
+
             hidden.setOrientation(LinearLayout.VERTICAL);
             hidden.setGravity(Gravity.CENTER_VERTICAL);
             hidden.setPadding(20, 0, 20, 20);
             hidden.setVisibility(MaterialCardView.GONE);
-//            hidden.setY(50);
 
             TextView title = new TextView(InformationCards.this);
             TextView desc = new TextView(InformationCards.this);
             title.setText(titles[i]);
             title.setTextSize(18);
-            desc.setText(descs[i]);
+            desc.setText(Html.fromHtml(descs[i], Html.FROM_HTML_MODE_LEGACY));
             desc.setTextSize(16);
 
             // currently -- when clicking, only activates last card?
             arrow.setOnClickListener(view -> {
-                if(hidden.getVisibility() == MaterialCardView.VISIBLE){
+                if (hidden.getVisibility() == MaterialCardView.VISIBLE) {
                     TransitionManager.beginDelayedTransition(card, new AutoTransition());
                     hidden.setVisibility(MaterialCardView.GONE);
                     arrow.setImageResource(R.drawable.outline_arrow_downward_alt_24);
@@ -154,21 +212,44 @@ public class InformationCards extends AppCompatActivity {
             Titlelayout.addView(title);
             Titlelayout.addView(arrow);
             hidden.addView(desc);
-            cardContent.addView(Titlelayout);
-            cardContent.addView(hidden);
 
-            LinearLayout.LayoutParams cardParams =
-                    new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
 
-            cardParams.setMargins(0, 0, 0, 20);
-            card.setLayoutParams(cardParams);
+            hiddenSection.addView(Titlelayout);
+            hiddenSection.addView(hidden);
 
-            card.addView(cardContent);
+            if (showButton){
+                Button button = new Button(InformationCards.this);
+                GradientDrawable drawable = new GradientDrawable();
+                drawable.setCornerRadius(20);
+                drawable.setColor(Color.parseColor("#6750A4"));
+                button.setBackground(drawable);
+                button.setText("Visit Website");
+                button.setTextColor(Color.parseColor("#FFFFFF"));
 
-            container.addView(card, i);
+                button.setOnClickListener(view -> {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urls[index]));
+                    startActivity(browserIntent);
+                });
+                hidden.addView(button);
+            }
+
+
         }
+
+        cardContent.addView(TitlelayoutSection);
+        cardContent.addView(hiddenSection);
+        card.addView(cardContent);
+        LinearLayout.LayoutParams cardParams =
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        cardParams.setMargins(0, 0, 0, 50);
+        card.setLayoutParams(cardParams);
+
+
+        container.addView(card);
+
     }
 
 }
