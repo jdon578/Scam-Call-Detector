@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import androidx.appcompat.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -76,7 +77,22 @@ public class InformationCards extends AppCompatActivity {
             return false;
         });
 
-        populate();
+        SearchView searchBar = findViewById(R.id.search_bar);
+        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                populate(query);
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                String userInput = newText.toLowerCase();
+                populate(userInput);
+                return true;
+            }
+            });
+
+        populate("");
 
     }
 
@@ -95,12 +111,14 @@ public class InformationCards extends AppCompatActivity {
         startActivity(settingsIntent);
     }
 
-    public void populate(){
-        populateList(R.array.ScamTypes, R.array.ScamTypesDESC,"Scam Types",false);
-        populateList(R.array.protection, R.array.protectionDESC,"How to protect yourself?",false);
-        populateList(R.array.Resources, R.array.ResourcesDESC,"Useful Resources",true);
+    public void populate(String query){
+        container = findViewById(R.id.info_container);
+        container.removeAllViews();
+        populateList(R.array.ScamTypes, R.array.ScamTypesDESC,"Scam Types",false,query);
+        populateList(R.array.protection, R.array.protectionDESC,"How to protect yourself?",false,query);
+        populateList(R.array.Resources, R.array.ResourcesDESC,"Useful Resources",true,query);
     }
-    public void populateList(int Title, int Desc,String sectionTitleText, boolean showButton){
+    public void populateList(int Title, int Desc,String sectionTitleText, boolean showButton,String query){
         Resources res = getResources();
         String[] titles = res.getStringArray(Title);
         String[] descs = res.getStringArray(Desc);
@@ -157,10 +175,19 @@ public class InformationCards extends AppCompatActivity {
         TitlelayoutSection.addView(Sectionarrow);
 
         //section layer
+        int count = 0;
         for(int i = 0; i < titles.length; i++) {
 //            MaterialCardView card =
 //                    new MaterialCardView(
 //                            InformationCards.this);
+
+            String userInput = query.toLowerCase();
+            if(userInput.length() > 0 && !titles[i].toLowerCase().contains(userInput)){
+                continue;
+            }
+
+            count++;
+
             final int index = i;
 
             LinearLayout hidden = new LinearLayout(InformationCards.this);
@@ -248,7 +275,10 @@ public class InformationCards extends AppCompatActivity {
         card.setLayoutParams(cardParams);
 
 
-        container.addView(card);
+        if(count > 0){
+            container.addView(card);
+        }
+        //container.addView(card);
 
     }
 

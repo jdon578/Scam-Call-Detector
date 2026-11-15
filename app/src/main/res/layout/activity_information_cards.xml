@@ -8,6 +8,8 @@
     android:layout_gravity="center_horizontal"
     tools:context=".InformationCards">
 
+
+
     <include layout="@layout/nav_bars" />
 
     <LinearLayout
@@ -31,6 +33,13 @@
             android:scaleX="2"
             android:scaleY="2"
             android:text="@string/information" />
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:iconifiedByDefault="false"
+            app:queryHint="Search for a topic" />
 
         <ScrollView
             android:layout_width="364dp"
