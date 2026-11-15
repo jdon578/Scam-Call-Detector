@@ -51,7 +51,7 @@
     </string-array>
 
     <string-array name="protectionDESC">
-        <!-- taken from fcc.gov/scam-glossary -->
+        <!-- taken from fcc.gov/phone scam-->
         <item name="How To Recognize a Phone Scam">
             &lt;b&gt;There is no prize&lt;/b&gt; &lt;br/&gt;
 	Be careful if someone tells you that you won a prize but asks you to pay a fee to receive it.&lt;br/&gt;&lt;br/&gt;
@@ -157,7 +157,6 @@ Don\'t share your Social Security number or other sensitive information with une
     </string-array>
 
     <string-array name="ResourcesDESC">
-        <!-- taken from fcc.gov/scam-glossary -->
         <item name="FTC – ReportFraud">Report phone scams, fraud, and suspicious business activities to the Federal Trade Commission.&lt;br/&gt;</item>
         <item name="National Do Not Call Registry"> Register your phone number to reduce unwanted telemarketing calls. However, this registry cannot stop all scam calls.&lt;br/&gt;</item>
         <item name="IdentityTheft.gov">Report identity theft and get a personalized recovery plan to protect your personal information.&lt;br/&gt;</item>

@@ -97,7 +97,7 @@ public class InformationCards extends AppCompatActivity {
 
     public void populate(){
         populateList(R.array.ScamTypes, R.array.ScamTypesDESC,"Scam Types",false);
-        populateList(R.array.protection, R.array.protectionDESC,"How to protect yourself from a scam?",false);
+        populateList(R.array.protection, R.array.protectionDESC,"How to protect yourself?",false);
         populateList(R.array.Resources, R.array.ResourcesDESC,"Useful Resources",true);
     }
     public void populateList(int Title, int Desc,String sectionTitleText, boolean showButton){
