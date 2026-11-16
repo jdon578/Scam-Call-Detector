@@ -61,6 +61,7 @@ public class ContactFilter extends AppCompatActivity {
             popup.getMenu().add("Blocked Numbers");
             popup.getMenu().add("Contact");
             popup.getMenu().add("Contact Blocked Numbers");
+            popup.getMenu().add("Star Numbers");
 
             popup.setOnMenuItemClickListener(item -> {
                 if(item.getTitle().equals("Blocked Numbers")){
@@ -76,6 +77,11 @@ public class ContactFilter extends AppCompatActivity {
                 if(item.getTitle().equals("Contact Blocked Numbers")){
                     main_title.setText("Contact Blocked Numbers");
                     showBlockContactNumbers();
+                    return true;
+                }
+                if(item.getTitle().equals("Star Numbers")){
+                    main_title.setText("Star Numbers");
+                    showStarNumbers();
                     return true;
                 }
                 return false;
@@ -395,7 +401,7 @@ public class ContactFilter extends AppCompatActivity {
 
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null,
-                null, null);
+                null, ContactsContract.Contacts.DISPLAY_NAME + " ASC");
         if (cur.getCount() > 0) {
             String number = null;
             String name = null;
@@ -447,8 +453,37 @@ public class ContactFilter extends AppCompatActivity {
                     Button blockButton = new Button(ContactFilter.this);
                     blockButton.setText("Block Number");
 
+                    ImageButton starbutton = new ImageButton(ContactFilter.this);
+                    starbutton.setImageResource(R.drawable.outline_kid_star_24);
+                    starbutton.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+                    starbutton.setPadding(15,0,0,0);
+                    final boolean[] isStarred = {false};
+
+
                     String blocknumber =number;
                     String blockname = name;
+
+                    String starNumber =number;
+                    String starName = name;
+
+                    JSONArray starNumbers = getStarNumbers("star_numbers");
+                    for(int i = 0; i < starNumbers.length(); i++){
+                        try{
+                            JSONObject star = starNumbers.getJSONObject(i);
+                            if(star.getString("phoneNumber").equals(starNumber)){
+                                isStarred[0] = true;
+                                break;
+                            }
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if(isStarred[0]){
+                        starbutton.setImageResource(R.drawable.filled_kid_star_24);
+                    }else{
+                        starbutton.setImageResource(R.drawable.outline_kid_star_24);
+                    }
 
                     blockButton.setOnClickListener(view -> {
                         saveBlockNumber("blocked_contact_numbers", blocknumber, blockname);
@@ -456,9 +491,29 @@ public class ContactFilter extends AppCompatActivity {
                         populateList();
                     });
 
+                    starbutton.setOnClickListener(view -> {
+                        if(isStarred[0]){
+                            saveStarNumber("star_numbers", starNumber, starName);
+                            starbutton.setImageResource(R.drawable.filled_kid_star_24);
+                            isStarred[0] = false;
+                        }else{
+                            deleteStarNumber("star_numbers", starNumber);
+                            starbutton.setImageResource(R.drawable.outline_kid_star_24);
+                            isStarred[0] = true;
+                        }
 
+                    });
+
+                    LinearLayout nameLayout = new LinearLayout(ContactFilter.this);
+                    nameLayout.setOrientation(LinearLayout.HORIZONTAL);
+                    nameLayout.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+                    nameLayout.addView(phoneName);
+                    nameLayout.addView(starbutton);
+
+                    layout.addView(nameLayout);
                     layout.addView(phoneText);
-                    layout.addView(phoneName);
+//                    layout.addView(phoneName);
                     layout.addView(blockButton);
 
                     card.addView(layout);
@@ -476,7 +531,7 @@ public class ContactFilter extends AppCompatActivity {
         }
 
     }
-    public void showBlockNumbers(){
+    private void showBlockNumbers(){
         LinearLayout container = findViewById(R.id.contact_container);
         container.removeAllViews();
 
@@ -546,7 +601,7 @@ public class ContactFilter extends AppCompatActivity {
 
         }
 
-    public void showBlockContactNumbers(){
+    private void showBlockContactNumbers(){
         LinearLayout container = findViewById(R.id.contact_container);
         container.removeAllViews();
 
@@ -592,6 +647,61 @@ public class ContactFilter extends AppCompatActivity {
                 layout.addView(phoneText);
                 layout.addView(phoneName);
                 layout.addView(unblockButton);
+
+                card.addView(layout);
+
+                LinearLayout.LayoutParams cardParams =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT);
+
+                cardParams.setMargins(0, 0, 0, 25);
+                card.setLayoutParams(cardParams);
+                container.addView(card);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    private void showStarNumbers(){
+        LinearLayout container = findViewById(R.id.contact_container);
+        container.removeAllViews();
+
+        JSONArray StarNumbersArray = getStarNumbers("star_numbers");
+        if(StarNumbersArray.length() == 0){
+            TextView text = new TextView(ContactFilter.this);
+            text.setText("No star numbers");
+            text.setTextSize(18);
+            container.addView(text);
+            return;
+        }
+        for(int i = 0; i < StarNumbersArray.length(); i++)
+        {
+            try {
+                JSONObject document = StarNumbersArray.getJSONObject(i);
+                String number = document.getString("phoneNumber");
+                String name = document.getString("name");
+                com.google.android.material.card.MaterialCardView card =
+                        new com.google.android.material.card.MaterialCardView(
+                                ContactFilter.this);
+                LinearLayout layout =
+                        new LinearLayout(ContactFilter.this);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                layout.setPadding(20, 20, 20, 20);
+
+                TextView phoneText = new TextView(ContactFilter.this);
+                phoneText.setText(number);
+                phoneText.setTextSize(18);
+
+                TextView phoneName = new TextView(ContactFilter.this);
+                phoneName.setText(name);
+                phoneName.setTextSize(18);
+
+                layout.addView(phoneText);
+                layout.addView(phoneName);
 
                 card.addView(layout);
 
@@ -675,6 +785,55 @@ public class ContactFilter extends AppCompatActivity {
             }
         }
         sharedPreferences.edit().putString(key, NewBlockNumbers.toString()).apply();
+    }
+
+
+    private JSONArray getStarNumbers(String key){
+        String json = sharedPreferences.getString(key, null);
+        if(json != null) {
+            try{
+                JSONArray starNumbers = new JSONArray(json);
+                return starNumbers;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return new JSONArray();
+    }
+
+    private void saveStarNumber(String key, String number, String name){
+        number = number.replaceAll("[^0-9]","");
+
+        JSONArray starNumbers = getStarNumbers(key);
+
+        JSONObject starNumber = new JSONObject();
+        try{
+
+            starNumber.put("phoneNumber",number);
+            starNumber.put("name", name);
+
+            starNumbers.put(starNumber);
+            sharedPreferences.edit().putString(key, starNumbers.toString()).apply();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    private void deleteStarNumber(String key, String number){
+        JSONArray StarNumbers = getStarNumbers(key);
+        JSONArray NewStarNumbers = new JSONArray();
+        for(int i = 0; i < StarNumbers.length(); i++){
+            try{
+                JSONObject StarNumber = StarNumbers.getJSONObject(i);
+                if(!StarNumber.getString("phoneNumber").equals(number)){
+                    NewStarNumbers.put(StarNumber);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        sharedPreferences.edit().putString(key, NewStarNumbers.toString()).apply();
     }
 
 
