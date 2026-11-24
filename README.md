@@ -1,4 +1,5 @@
 Scam Call Detector app - Capstone project for ICSI 499
+
 Android app using Java through Android Studio
 
 # Features
