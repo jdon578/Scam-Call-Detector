@@ -135,6 +135,8 @@ public class CallLogActivity extends AppCompatActivity {
         LinearLayout container = findViewById(R.id.call_log_container);
         container.removeAllViews();
 
+        int index = 0;
+
         try (Cursor cursor = contentResolver.query(callUri, callLogs, null, null, null)){
             if (cursor == null){
                 Log.e(TAG, "Cursor is null");
@@ -145,7 +147,7 @@ public class CallLogActivity extends AppCompatActivity {
             int dateID = cursor.getColumnIndex(CallLog.Calls.DATE);
             int durationID = cursor.getColumnIndex(CallLog.Calls.DURATION);
 
-            while(cursor.moveToNext()){
+            while(cursor.moveToNext() && index < 10){
                 String phoneNumber = cursor.getString(numberID);
                 String callType = cursor.getString(typeID);
                 String callDate = cursor.getString(dateID);
@@ -280,6 +282,8 @@ public class CallLogActivity extends AppCompatActivity {
                 cardParams.setMargins(0, 0, 0, 25);
                 card.setLayoutParams(cardParams);
                 container.addView(card, 0);
+
+                index++;
             }
         } catch (Exception e){
             Log.e(TAG, "Error getting call logs", e);
